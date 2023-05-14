@@ -1,3 +1,69 @@
 body {
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Open Sans', sans-serif;
 }
+
+h1 {
+    text-align: center;
+}
+
+form {
+    text-align: center;
+}
+
+#drop-zone {
+    background-color: #ffffff;
+    border: 3px dashed #00000047;
+    border-radius: 5px;
+    padding: 25px;
+    text-align: center;
+    font-size: 20px;
+    margin: 10px;
+    cursor: pointer;
+}
+
+.primary-button {
+    border: 2px solid black;
+    border-radius: 5px;
+    background-color: white;
+    padding: 1em 2em;
+    margin: 1em 1em;
+}
+
+.primary-button:hover {
+    background-color: black;
+    color: white;
+}
+
+/* when disabled or readonly */
+.primary-button[disabled] {
+    background-color: #0000000b;
+    color: #00000047;
+    border: 2px solid #00000047;
+}
+
+.progress {
+    /* border sharp */
+    border-radius: 2px !important;
+    height: 30px !important;
+    border: 2px solid black !important;
+    /* background-color: white; */
+    font-family: inherit !important;
+}
+
+/* remove decorration from #flies list  */
+#filelist li {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    border: 1px solid #00000010;
+    width: 40%;
+    padding: 10px;
+    margin: 5px;
+}
+
+#filelist li:hover {
+    background-color: #00000010;
+}
+
+
+

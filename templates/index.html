@@ -6,7 +6,388 @@
 
 
 {% block body %}
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"
+    integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8=" crossorigin="anonymous"></script>
 <h1>
     Scrapper
 </h1>
+<form action="/start" method="post" enctype="multipart/form-data">
+    <div class="d-flex justify-content-center align-items-center">
+        <div class="inner-container w-50 px-2">
+            <div class="form-group">
+                <!-- File Upload with drag and drop -->
+                <!-- <label for="file">Upload File</label> -->
+                <div id="drop-zone">
+                    <p>Drag and drop files here or click to choose files</p>
+                    <input type="file" id="file-input" name="myfile" style="display: none;">
+                </div>
+            </div>
+            <div class="button-container">
+                <button class="primary-button" type="submit">
+                    Upload
+                    <!-- fontawesome icon -->
+                    <i class="fas fa-upload"></i>
+                    <!-- spinning icon animation -->
+                    <!-- <i class="fas fa-spinner fa-spin"></i> -->
+                </button>
+                <button class="primary-button" type="reset">
+                    Reset
+                    <!-- fontawesome icon -->
+                    <i class="fas fa-redo"></i>
+                </button>
+
+                <button class="primary-button" type="pause" disabled>
+                    Pause
+                    <!-- fontawesome icon -->
+                    <i class="fas fa-pause"></i>
+                </button>
+
+
+            </div>
+        </div>
+    </div>
+
+</form>
+<div id="progress-bar-container"
+    class="progress-bar-container d-flex justify-content-center align-items-center flex-column">
+    <!-- progress bar -->
+    <div class="progress w-50">
+        <div class="progress-bar progress-bar-striped progress-bar-animated bg-dark" role="progressbar"
+            aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
+        </div>
+    </div>
+    <span id="progress-status">
+        Please Select Excel File to Upload
+    </span>
+</div>
+
+<!-- text status  -->
+<div class="text-center">
+    <h3 id="status"></h3>
+</div>
+
+<!-- show list of files  -->
+<div>
+    <h3 class="ms-5">Files</h3>
+    <ul id="filelist">
+
+    </ul>
+</div>
+
+<script>
+    var raw_input = 0
+    uploadFileList = [];
+    var security_password = "";
+    const dropZone = document.getElementById('drop-zone');
+    // Prevent default drag behaviors
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+    });
+    dropZone.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+    });
+    // Handle dropped files
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        const files = e.dataTransfer.files;
+        handleFiles(files);
+    });
+    // Handle file selection from the file input
+    const fileInput = document.getElementById('file-input');
+    fileInput.addEventListener('change', (e) => {
+        const files = e.target.files;
+        handleFiles(files);
+    });
+    // Handle selected files or dropped files
+    function handleFiles(files) {
+        // check if file is excel 
+        if (files[0].type != 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+            alert('You can only upload excel file');
+            return;
+        }
+        // update the text to show file name
+        $('#drop-zone p').text(files[0].name);
+
+        // add file to uploadFileList
+        uploadFileList.push(files[0]);
+    }
+
+    dropZone.addEventListener('click', () => {
+        fileInput.click();
+    });
+
+
+    // when use click submit, make ajax request and submit data to /start 
+    $('form').submit(function (e) {
+        e.preventDefault();
+        // check if file is selected file list is empty
+        if (uploadFileList.length == 0) {
+            alert('Please select a file to upload');
+            return;
+        }
+        // take passwod as input , with hiddne input 
+        if (inputPassword()){
+            // create ajax request to /submit 
+            console.log('submitting file');
+            var formData = new FormData();
+            // append file to form data
+            formData.append('file', uploadFileList[0]);
+            formData.append('security_password', security_password);
+
+            // disable upload button and set spinner 
+            $('button[type="submit"]').html('Processing <i class="fas fa-spinner fa-spin"></i>');
+            
+            $.ajax({
+                url: '/start',
+                type: 'POST',
+                data: formData,
+                success: function (data) {
+                },
+                cache: false,
+                contentType: false,
+                processData: false
+            });
+        }
+    });
+
+    // onclick reset button, post request to /reset 
+    $('button[type="reset"]').click(function (e) {
+        // disable reset button
+        $('button[type="reset"]').prop('disabled', true);
+
+        e.preventDefault();
+        $.ajax({
+            url: '/reset',
+            type: 'POST',
+            success: function (data) {
+                // console.log(data);
+                // reload the page 
+                // location.reload();
+            },
+            cache: false,
+            contentType: false,
+            processData: false
+        });
+    });
+    function inputPassword() {
+        if (security_password == "") {
+            security_password = prompt("Please enter your password", "");
+            if (security_password == null || security_password == "") {
+                alert("Please enter your password");
+                return false;
+            }
+        }
+        return true;
+    }
+    // update progress bar and status
+    function updateProgress() {
+        $.ajax({
+            url: '/progress',
+            type: 'GET',
+            success: function (data) {
+                // if data.application_state.application_state_code == 0, then hide the progrss bar 
+                // data.application_state.application_state_code = raw_input
+                if (data.application_state.application_state_code == 0) {
+                    // remove d-flex class if preset n
+                    if ($('#progress-bar-container').hasClass('d-flex')) {
+                        $('#progress-bar-container').removeClass('d-flex');
+                    }
+                    // set d-none class 
+                    $('#progress-bar-container').addClass('d-none');
+                    // remove spinner icon and add upload icon
+                    $('button[type="submit"]').html('Upload <i class="fas fa-upload"></i>');
+
+                    // disable reset button
+                    $('button[type="reset"]').prop('disabled', true);
+                    // disable pause button
+                    $('button[type="pause"]').prop('disabled', true);
+                    // enable upload button
+                    $('button[type="submit"]').prop('disabled', false);
+                } else if (data.application_state.application_state_code == 1) {
+                    // remove upload icon and add spinning icon
+                    $('button[type="submit"]').html('Processing <i class="fas fa-spinner fa-spin"></i>');
+                    // remove d-none class if present
+                    if ($('#progress-bar-container').hasClass('d-none')) {
+                        $('#progress-bar-container').removeClass('d-none');
+                    }
+                    // set d-flex class
+                    $('#progress-bar-container').addClass('d-flex');
+                    // update progress bar
+                    $('.progress-bar').css('width', "100%");
+                    // update status
+                    $('#progress-status').text('Processing Excel File');
+
+                    b_list = ['bg-success', 'bg-info', 'bg-warning', 'bg-danger', 'bg-dark', 'bg-primary', 'bg-secondary'];
+
+                    // remove all classes from progress bar
+                    b_list.forEach(function (item, index) {
+                        if ($('.progress-bar').hasClass(item)) {
+                            $('.progress-bar').removeClass(item);
+                        }
+                    });
+                    // add bg-info class
+                    $('.progress-bar').addClass('bg-info');
+
+                    // disable reset button
+                    $('button[type="reset"]').prop('disabled', true);
+                    // disable pause button
+                    $('button[type="pause"]').prop('disabled', true);
+                } else if (data.application_state.application_state_code == 2) {
+                    // remove spinning icon and add upload icon
+                    $('button[type="submit"]').html('Upload <i class="fas fa-upload"></i>');
+                    // remove d-none class if present
+                    if ($('#progress-bar-container').hasClass('d-none')) {
+                        $('#progress-bar-container').removeClass('d-none');
+                    }
+                    // set d-flex class if not present
+                    if (!$('#progress-bar-container').hasClass('d-flex')) {
+                        $('#progress-bar-container').addClass('d-flex');
+                    }
+                    // update progress bar to data.progress
+                    $('.progress-bar').css('width', data.progress + "%");
+                    // update status
+                    $('#progress-status').text(data.completed + ' / ' + data.total);
+
+                    b_list = ['bg-success', 'bg-info', 'bg-warning', 'bg-danger', 'bg-dark', 'bg-primary', 'bg-secondary'];
+
+                    // remove all classes from progress bar
+                    b_list.forEach(function (item, index) {
+                        if ($('.progress-bar').hasClass(item)) {
+                            $('.progress-bar').removeClass(item);
+                        }
+                    });
+                    // add bg-info class
+                    $('.progress-bar').addClass('bg-dark');
+
+                    // disable upload button
+                    $('button[type="submit"]').prop('disabled', true);
+                    // enable pause and reset button
+                    $('button[type="pause"]').prop('disabled', false);
+                    $('button[type="reset"]').prop('disabled', false);
+
+                    // replace pause buttone text to pause and icon to pause
+                    $('button[type="pause"]').html('Pause <i class="fas fa-pause"></i>');
+                } else if (data.application_state.application_state_code == 3) {
+                    // remove spinning icon and add upload icon
+                    $('button[type="submit"]').html('Upload <i class="fas fa-upload"></i>');
+                    // remove d-none class if present
+                    if ($('#progress-bar-container').hasClass('d-none')) {
+                        $('#progress-bar-container').removeClass('d-none');
+                    }
+                    // set d-flex class if not present
+                    if (!$('#progress-bar-container').hasClass('d-flex')) {
+                        $('#progress-bar-container').addClass('d-flex');
+                    }
+                    // update progress bar to data.progress
+                    $('.progress-bar').css('width', data.progress + "%");
+                    // update status
+                    $('#progress-status').text(data.completed + ' / ' + data.total + ' (Paused)');
+
+                    b_list = ['bg-success', 'bg-info', 'bg-warning', 'bg-danger', 'bg-dark', 'bg-primary', 'bg-secondary'];
+
+                    // remove all classes from progress bar
+                    b_list.forEach(function (item, index) {
+                        if ($('.progress-bar').hasClass(item)) {
+                            $('.progress-bar').removeClass(item);
+                        }
+                    });
+                    // add bg-info class
+                    $('.progress-bar').addClass('bg-warning');
+
+                    // disable upload button
+                    $('button[type="submit"]').prop('disabled', true);
+                    // enable pause and reset button
+                    $('button[type="pause"]').prop('disabled', false);
+                    $('button[type="reset"]').prop('disabled', false);
+
+                    // replace pause buttone text to resume and icon to play
+                    $('button[type="pause"]').html('Resume <i class="fas fa-play"></i>');
+                } else if (data.application_state.application_state_code == 4) {
+                    // remove spinning icon and add upload icon
+                    $('button[type="submit"]').html('Upload <i class="fas fa-upload"></i>');
+                    // remove d-none class if present
+                    if ($('#progress-bar-container').hasClass('d-none')) {
+                        $('#progress-bar-container').removeClass('d-none');
+                    }
+                    // set d-flex class if not present
+                    if (!$('#progress-bar-container').hasClass('d-flex')) {
+                        $('#progress-bar-container').addClass('d-flex');
+                    }
+                    // update progress bar to data.progress
+                    $('.progress-bar').css('width', "100%");
+                    // update status
+                    $('#progress-status').text('Completed');
+
+                    b_list = ['bg-success', 'bg-info', 'bg-warning', 'bg-danger', 'bg-dark', 'bg-primary', 'bg-secondary'];
+
+                    // remove all classes from progress bar
+                    b_list.forEach(function (item, index) {
+                        if ($('.progress-bar').hasClass(item)) {
+                            $('.progress-bar').removeClass(item);
+                        }
+                    });
+                    // add bg-info class
+                    $('.progress-bar').addClass('bg-success');
+
+                    // disable upload, pause
+                    $('button[type="submit"]').prop('disabled', true);
+                    $('button[type="pause"]').prop('disabled', true);
+                    // enable reset button
+                    $('button[type="reset"]').prop('disabled', false);
+                }
+
+                // set time out to call updateProgress() again
+                setTimeout(function () {
+                    updateProgress();
+                }, 5000);
+
+            },
+            cache: false,
+            contentType: false,
+            processData: false
+        });
+    }
+    updatefilelist();
+    updateProgress();
+    function updatefilelist() {
+        // make ajax call to get list of files
+        $.ajax({
+            url: '/output-files',
+            type: 'GET',
+            success: function (data) {
+                // console.log(data);
+                // update file list
+                // iterate over data and append each list item 
+                $('#filelist').empty();
+                html = "";
+
+                $.each(data.files, function (index, value) {
+                    // console.log('value :>> ', value);
+                    html += '<li><a href="/static/output/' + value.name + '">' + value.name + '</a><small> (' + value.last_modified + ')</small>';
+                    // if is_new addd a new badge
+                    if (value.is_new) {
+                        html += '<span class="badge bg-success ms-2">New</span>';
+                    }
+                    html += '</li>';
+
+                });
+
+                if (data.files.length == 0) {
+                    html += '<li>No files found</li>';
+                }
+                $('#filelist').append(html);
+                // if status is not finished, call updateProgress() again
+                if (data.status != 'completed') {
+                    // sleep for 1 second 
+                    setTimeout(function () {
+                        updatefilelist();
+                    }, 4000);
+                }
+            },
+            cache: false,
+            contentType: false,
+            processData: false
+        });
+    }
+</script>
 {% endblock body %}
