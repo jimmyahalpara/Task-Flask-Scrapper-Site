@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect
 from flask_sqlalchemy import SQLAlchemy
 import numpy as np 
 import pandas as pd 
@@ -6,7 +6,7 @@ import requests
 import multiprocessing as mp
 # from app import db, Product
 import time
-
+import hashlib
 
 app = Flask(__name__)
 # connection to mysql database using password NO
@@ -82,6 +82,11 @@ class Product(db.Model):
 
     # int column 
     is_completed = db.Column(db.Integer, nullable=True)
+    # 0 not started 
+    # 1 started
+    # 2 paused 
+    # 3 error 
+    # 4 completed
     # text column
     error_message = db.Column(db.String(300), nullable=True)
 
@@ -122,15 +127,52 @@ class Product(db.Model):
             '10th Rank': self.contractor_10,
             'price 10': self.price_10,
             'has sale 10': self.has_sale_10,
+            'is_completed': self.is_completed,
+            'error_message': self.error_message
         }
     
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    # get data from run time config table
+    # get sleep_between_sku
+    sleep_between_sku = RunTimeConfig.query.filter_by(key='sleep_between_sku').first()
+    # get batch_size
+    batch_size = RunTimeConfig.query.filter_by(key='batch_size').first()
+
+    company_name = MainConfig.query.filter_by(key='company_name').first()
+    # get error_sleep_second_list
+    error_sleep_second_list = RunTimeConfig.query.filter_by(key='error_sleep_second_list').first()
+    
+
+    error_message = request.args.get('error')
+    return render_template(
+        'index.html', 
+        sleep_between_sku=sleep_between_sku.value, 
+        batch_size=batch_size.value, 
+        error_sleep_second_list=error_sleep_second_list.value,
+        company_name=company_name.value,
+        error_message=error_message
+        )
 
 @app.route('/reset', methods=['POST'])
 def reset():
+    # check password
+    # get password from request
+    password = request.form['security_password']
+    # find hash of the password to compare 
+    password_hash = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), b'salt', 150000)
+    password_hash = password_hash.hex()
+    # get password_hash from MainConfig table
+    main_config = MainConfig.query.filter_by(key='password_hash').first()
+    # check if password is correct
+    if password_hash != main_config.value:
+        # with http status code 401
+        return {
+            'status': 'error',
+            'message': 'Incorrect Password'
+        }, 401
+
     # truncate Product table
     Product.query.delete()
     # commit the changes
@@ -168,14 +210,13 @@ def output_files():
     }
 
 # delete all files 
-@app.route('/delete-files', methods=['POST'])
+@app.route('/delete-file', methods=['POST'])
 def delete_files():
-    import os, shutil
-    # delete all files from static/output folder
-    shutil.rmtree('static/output')
-    # create a new folder
-    os.mkdir('static/output')
-    # return as json 
+    # delete file from filename in request 
+    filename = request.form['filename']
+    # delete file from static/output
+    import os
+    os.remove("static/output/" + filename)
     return {
         'status': 'success'
     }
@@ -187,7 +228,7 @@ def progress():
     # get count of both
     # return as json
 
-    compelted = Product.query.filter(Product.is_completed != 0).count()
+    compelted = Product.query.filter(Product.is_completed == 4).count()
     total = Product.query.count()
     # is_completed_0 = Product.query.filter(Product.is_completed == 0).count()
 
@@ -198,29 +239,167 @@ def progress():
     # set key as index
     application_state = {row.key: row.value for row in application_state}
     # application_state['application_state_code'] = 1;
-
+    # all product with is_completed != 0 and is_completed != 4
+    all_product = Product.query.filter(Product.is_completed != 0).filter(Product.is_completed != 4).all()
     # last modified file from status/output 
     return {
         'completed': compelted,
         'total' : total,
         'progress': round((compelted / total) * 100, 2) if total > 0 else 0,
         'status': 'completed' if (compelted == total and compelted != 0)  else 'in progress',
-        'application_state': application_state
+        'application_state': application_state,
+        'all_product': [product.to_dict() for product in all_product]
     }
 
 @app.route('/start', methods=['POST'])
 def start():
-    # set application_state_code to 1
+    # check password
+    # get password from request
+    password = request.form['security_password']
+    # find hash of the password to compare 
+    password_hash = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), b'salt', 150000)
+    password_hash = password_hash.hex()
+    # get password_hash from MainConfig table
+    main_config = MainConfig.query.filter_by(key='password_hash').first()
+    # check if password is correct
+    if password_hash != main_config.value:
+        # with http status code 401
+        return {
+            'status': 'error',
+            'message': 'Incorrect Password'
+        }, 401
 
+    # set application_state_code to 1
     state = ApplicationState.query.filter_by(key='application_state_code').first()
     # set value to 1
     state.value = '1'
     # commit the changes
     db.session.commit()
+    main_config = get_main_config()
     # store the excel file in static folder
-    return read_data_from_excel_file(request.files['file'])
+    return read_data_from_excel_file(request.files['file'], main_config)
 
+@app.route('/pause', methods=['POST'])
+def pause():
+    # check password
+    # get password from request
+    password = request.form['security_password']
+    # find hash of the password to compare 
+    password_hash = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), b'salt', 150000)
+    password_hash = password_hash.hex()
+    # get password_hash from MainConfig table
+    main_config = MainConfig.query.filter_by(key='password_hash').first()
+    # check if password is correct
+    if password_hash != main_config.value:
+        # with http status code 401
+        return {
+            'status': 'error',
+            'message': 'Incorrect Password'
+        }, 401
+    # set application_state_code to 3
+    state = ApplicationState.query.filter_by(key='application_state_code').first()
+    # set value to 3
+    state.value = '3'
+    # commit the changes
+    db.session.commit()
+    return {
+        'status': 'success'
+    }
 
+@app.route('/resume', methods=['POST'])
+def resume():
+    # check password
+    # get password from request
+    password = request.form['security_password']
+    # find hash of the password to compare 
+    password_hash = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), b'salt', 150000)
+    password_hash = password_hash.hex()
+    # get password_hash from MainConfig table
+    main_config = MainConfig.query.filter_by(key='password_hash').first()
+    # check if password is correct
+    if password_hash != main_config.value:
+        # with http status code 401
+        return {
+            'status': 'error',
+            'message': 'Incorrect Password'
+        }, 401
+    # set application_state_code to 2
+    state = ApplicationState.query.filter_by(key='application_state_code').first()
+    # set value to 2
+    state.value = '2'
+    # commit the changes
+    db.session.commit()
+    return {
+        'status': 'success'
+    }
+
+@app.route('/store-run-time-config', methods=['POST'])
+def store_run_time_config():
+    # check password
+    # get password from request
+    password = request.form['security_password']
+    # find hash of the password to compare 
+    password_hash = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), b'salt', 150000)
+    password_hash = password_hash.hex()
+    # get password_hash from MainConfig table
+    main_config = MainConfig.query.filter_by(key='password_hash').first()
+    # check if password is correct
+    if password_hash != main_config.value:
+        # redirect to home page with error message
+        return redirect('/?error=Incorrect Password')
+
+    # get sleep_between_sku
+    sleep_between_sku = request.form['sleep_between_sku']
+    # get batch_size
+    batch_size = request.form['batch_size']
+    # get error_sleep_second_list
+    error_sleep_second_list = request.form['error_sleep_second_list']
+    # get all the data from RunTimeConfig table
+    run_time_config = RunTimeConfig.query.all()
+    # set key as index
+    run_time_config = {row.key: row for row in run_time_config}
+    # update sleep_between_sku
+    run_time_config['sleep_between_sku'].value = sleep_between_sku
+    # update batch_size
+    run_time_config['batch_size'].value = batch_size
+    # update error_sleep_second_list
+    run_time_config['error_sleep_second_list'].value = error_sleep_second_list
+    # commit the changes
+    db.session.commit()
+    return redirect('/')
+
+@app.route('/store-main-config', methods=['POST'])
+def store_main_config():
+    # check password
+    # get password from request
+    password = request.form['security_password']
+    # find hash of the password to compare 
+    password_hash = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), b'salt', 150000)
+    password_hash = password_hash.hex()
+    # get password_hash from MainConfig table
+    main_config = MainConfig.query.filter_by(key='password_hash').first()
+    # check if password is correct
+    if password_hash != main_config.value:
+        # redirect to home page with error message
+        return redirect('/?error=Incorrect Password')
+
+    # get company_name
+    company_name = request.form['company_name']
+    # get all the data from MainConfig table
+    main_config = MainConfig.query.all()
+    # set key as index
+    main_config = {row.key: row for row in main_config}
+    # update company_name
+    main_config['company_name'].value = company_name
+
+    # if new_password is not empty
+    new_password = request.form['new_password']
+    if new_password != '':
+        # update password_hash
+        main_config['password_hash'].value = hashlib.pbkdf2_hmac('sha256', new_password.encode('utf-8'), b'salt', 150000).hex()
+    # commit the changes
+    db.session.commit()
+    return redirect('/')
 
 
 # ---------------------
@@ -228,7 +407,7 @@ def start():
 
 process_collection = []
 # a function to read dat from excel file 
-def read_data_from_excel_file(file_path):
+def read_data_from_excel_file(file_path, main_config):
     global app
     # truncate Product table
     Product.query.delete()
@@ -251,17 +430,43 @@ def read_data_from_excel_file(file_path):
     # commit the changes
     db.session.commit()
     for index, row in data.iterrows():
+        # check if application state is 3
+        pause_loop = True
+        while pause_loop:
+            # get application state , latest, no cashing 
+            application_state = ApplicationState.query.filter_by(key='application_state_code').first()
+            db.session.refresh(application_state)
+            # if application state is 3 then sleep for 5 seconds
+            print("status",application_state.value, application_state.value == '3', application_state.value == 3)
+            if application_state.value == '3':
+                print("Application is paused")
+                # sleep for 5 seconds
+                time.sleep(5)
+                continue
+            elif application_state.value == '0':
+                # stop the process
+                print("Application is stopped")
+                return {
+                    'status': 'success'
+                }
+            else:
+                print("Application is running")
+                pause_loop = False
+
+
         # take first column as sku 
         sku = str(row[0])
         # seperate_sku_process(sku)
         # seperate sku process
-        process = mp.Process(target=seperate_sku_process, args=(sku,i))
+        process = mp.Process(target=seperate_sku_process, args=(sku,i,main_config['company_name']))
         process.start()
         process_collection.append(process)
         # sleep for 1 second
         print("started process for sku " + sku + " i " + str(i))
-        time.sleep(9)
-        if i % 10 == 0:
+
+        run_time_config = get_runtime_config()
+        time.sleep(int(run_time_config['sleep_between_sku']))
+        if i % int(run_time_config['batch_size']) == 0:
             # until process_collection is not empty, pop one process and join
             while len(process_collection) > 0:
                 p = process_collection.pop()
@@ -288,9 +493,16 @@ def read_data_from_excel_file(file_path):
     db.session.commit()
 
 
-def seperate_sku_process(sku, i):
+def seperate_sku_process(sku, i, company_name):
     from app import app, db, Product
-
+    with app.app_context():
+        # update product for sku status to 1 
+        # get product from database
+        product = Product.query.filter_by(sku=sku).first()
+        # set is_completed column to 1
+        setattr(product, 'is_completed', 1)
+        # commit the changes
+        db.session.commit()
     # search_key_1 will be sku itself 
     search_key_1 = sku
     # search_key_2 will be only numeric part of sku
@@ -306,6 +518,16 @@ def seperate_sku_process(sku, i):
         wait_index = 0
         not_break = True
         while not_break: 
+            with app.app_context():
+                # update product for sku status to 1 
+                # get product from database
+                product = Product.query.filter_by(sku=sku).first()
+                # set error_message column to empty string
+                setattr(product, 'error_message', 'Fetching...')
+                # set is_completed column to 1
+                setattr(product, 'is_completed', 1)
+                # commit the changes
+                db.session.commit()
             response = requests.get(url, headers={
                 'Content-Type': 'application/json',
                 'Accept': '*/*',
@@ -315,6 +537,16 @@ def seperate_sku_process(sku, i):
                 # raise Exception("Error in fetching data from sku " + sku + " status code " + str(response.status_code))
                 wait_time_seconds = wait_times[wait_index]
                 print("Error in fetching data from sku " + sku + " status code " + str(response.status_code) + " retrying in " +  str(wait_time_seconds) + " seconds")
+                with app.app_context():
+                    # update product for sku status to 1 
+                    # get product from database
+                    product = Product.query.filter_by(sku=sku).first()
+                    # set error_message column to error message
+                    setattr(product, 'error_message', "Error in fetching data from sku " + sku + " status code " + str(response.status_code) + " retrying in " +  str(wait_time_seconds) + " seconds")
+                    # set is_completed column to 2
+                    setattr(product, 'is_completed', 2)
+                    # commit the changes
+                    db.session.commit()
                 # sleep for 5 seconds 
                 time.sleep(wait_time_seconds)
                 # increment wait_index
@@ -325,9 +557,13 @@ def seperate_sku_process(sku, i):
         data = response.json()
         # iterate over solrResultList.productResults
         contractors = []
+        company_value = None
         for product in data['solrResultList']['productResults']:
             if search_key_1 == product['mfrPartNumber'] or search_key_2 == product['mfrPartNumber']:
-                cnt = fetch_top_contractor_for_gsin(product['gsin'])
+                res = fetch_top_contractor_for_gsin(product['gsin'], sku, company_name)
+                cnt = res['contractors']
+                if company_value == None or (res['company_value'] and company_value > res['company_value']):
+                    company_value = res['company_value']
                 # iterate and append contractors
                 for c in cnt:
                     contractor = {}
@@ -355,7 +591,9 @@ def seperate_sku_process(sku, i):
                     # update contractor has_sale
                     setattr(product, 'has_sale_' + str(index + 1), contractor['has_sale'])
                 # set is_completed column to 1 
-                setattr(product, 'is_completed', 2)
+                setattr(product, 'is_completed', 4)
+                # company price 
+                setattr(product, 'company_price', company_value)
                 # commit the changes
                 # update the product 
                 db.session.commit()
@@ -366,12 +604,12 @@ def seperate_sku_process(sku, i):
         print("Error in fetching data from sku " + sku)
         # write error in log file
         with open("log.txt", "a") as log_file:
+            # line number 
             log_file.write("Error in fetching data from sku " + sku + "\n")
             # error message 
             log_file.write(str(e) + "\n")
-            # also stack strace 
 
-def fetch_top_contractor_for_gsin(gsin):
+def fetch_top_contractor_for_gsin(gsin, sku, company_name):
     # https://www.gsaadvantage.gov/advantage/rs/catalog/product_detail?gsin=11000000949094
     url = "https://www.gsaadvantage.gov/advantage/rs/catalog/product_detail?gsin=" + gsin
     # get data from url
@@ -382,6 +620,16 @@ def fetch_top_contractor_for_gsin(gsin):
         wait_index = 0
         not_break = True
         while not_break:
+            with app.app_context():
+                # update product for sku status to 1 
+                # get product from database
+                product = Product.query.filter_by(sku=sku).first()
+                # set error_message column to empty string
+                setattr(product, 'error_message', 'Fetching...')
+                # set is_completed column to 1
+                setattr(product, 'is_completed', 1)
+                # commit the changes
+                db.session.commit()
             response = requests.get(url, headers={
                 'Content-Type': 'application/json',
                 'Accept': '*/*',
@@ -392,6 +640,16 @@ def fetch_top_contractor_for_gsin(gsin):
                 # raise Exception("Error in fetching data from gsin " + gsin + " status code " + str(response.status_code))
                 wait_time_seconds = wait_times[wait_index]
                 print("Error in fetching data from gsin " + gsin + " status code " + str(response.status_code) + " retrying in " +  str(wait_time_seconds) + " seconds")
+                with app.app_context():
+                    # update product for sku status to 1 
+                    # get product from database
+                    product = Product.query.filter_by(sku=sku).first()
+                    # set error_message column to error message
+                    setattr(product, 'error_message', "Error in fetching data from gsin " + gsin + " status code " + str(response.status_code) + " retrying in " +  str(wait_time_seconds) + " seconds")
+                    # set is_completed column to 2
+                    setattr(product, 'is_completed', 2)
+                    # commit the changes
+                    db.session.commit()
                 # sleep for 5 seconds
                 time.sleep(wait_time_seconds)
                 # increment wait_index
@@ -401,7 +659,18 @@ def fetch_top_contractor_for_gsin(gsin):
             not_break = False
         data = response.json()
         # iterate over productDetailVO.products
-        return data['productDetailVO']['products'][:10]
+        products = data['productDetailVO']['products']
+        min_value = None
+        for product in products:
+            # compare company name, case insensitive 
+            # print("\"", company_name.lower(), "\"", "\"", product['vendorName'].lower(), "\"")
+            if company_name.lower() == product['vendorName'].lower():
+                # print("min value updated to" )
+                min_value = product['price']['unitPrice']
+        return {
+            'company_value' : min_value,
+            'contractors' : products[:10]
+        }
     except Exception as e:
         # log the error 
         print("Error in fetching data from gsin " + gsin)
@@ -411,9 +680,19 @@ def fetch_top_contractor_for_gsin(gsin):
             # error message 
             log_file.write(str(e) + "\n")
 
+def get_runtime_config():
+    # get all the data from RunTimeConfig table
+    run_time_config = RunTimeConfig.query.all()
+    # set key as index
+    run_time_config = {row.key: row.value for row in run_time_config}
+    return run_time_config
 
-
-
+def get_main_config():
+    # get all the data from MainConfig table
+    main_config = MainConfig.query.all()
+    # set key as index
+    main_config = {row.key: row.value for row in main_config}
+    return main_config
 
 
 if __name__ == "__main__":
@@ -425,6 +704,17 @@ if __name__ == "__main__":
         if MainConfig.query.filter_by(key='company_name').count() == 0:
             # add company_name to MainConfig table
             main_config = MainConfig(key='company_name', value='Company Name')
+            # add main_config to database
+            db.session.add(main_config)
+            # commit the changes
+            db.session.commit()
+        # check if MainConfig table has row with password_hash 
+        # if not then add it
+        if MainConfig.query.filter_by(key='password_hash').count() == 0:
+            # add password_hash to MainConfig table
+            hsh = hashlib.pbkdf2_hmac('sha256', "pass@324".encode('utf-8'), b'salt', 150000)
+            hsh = hsh.hex()
+            main_config = MainConfig(key='password_hash', value=hsh)
             # add main_config to database
             db.session.add(main_config)
             # commit the changes

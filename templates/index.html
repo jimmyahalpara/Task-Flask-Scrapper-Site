@@ -11,7 +11,7 @@
 <h1>
     Scrapper
 </h1>
-<form action="/start" method="post" enctype="multipart/form-data">
+<form id="upload-form" action="/start" method="post" enctype="multipart/form-data">
     <div class="d-flex justify-content-center align-items-center">
         <div class="inner-container w-50 px-2">
             <div class="form-group">
@@ -60,18 +60,140 @@
         Please Select Excel File to Upload
     </span>
 </div>
-
-<!-- text status  -->
-<div class="text-center">
-    <h3 id="status"></h3>
-</div>
-
-<!-- show list of files  -->
-<div>
-    <h3 class="ms-5">Files</h3>
-    <ul id="filelist">
-
-    </ul>
+<div class="row border-top mt-3">
+    <div class="col-md-6 border-end">
+        <div class="accordion accordion-flush mx-2" id="accordionFlushExample">
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="flush-headingOne">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
+                        <h4>Files</h4>
+                    </button>
+                </h2>
+                <div id="flush-collapseOne" class="accordion-collapse collapse" aria-labelledby="flush-headingOne"
+                    data-bs-parent="#accordionFlushExample">
+                    <div>
+                        <ul id="filelist">
+                            <li>
+                                
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="flush-headingTwo">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#flush-collapseTwo" aria-expanded="false" aria-controls="flush-collapseTwo">
+                        <h4>Runtime Settings</h4>
+                    </button>
+                </h2>
+                <div id="flush-collapseTwo" class="accordion-collapse collapse" aria-labelledby="flush-headingTwo"
+                    data-bs-parent="#accordionFlushExample">
+                    <div class="accordion-body">
+                        <!-- error messge from sesssion -->
+                        {% if error_message %}
+                        <div class="alert alert-danger" role="alert">
+                            {{ error_message }}
+                        </div>
+                        {% endif %}
+                        <form action="/store-run-time-config" method="post" class="text-start">
+                            <div class="form-group mb-3">
+                                <label>
+                                    Sleep Between SKU
+                                </label>
+                                <input type="number" name="sleep_between_sku" class="form-control" placeholder="Space Between SKU" value="{{  sleep_between_sku }}">
+                            </div>
+                            <!-- batch size -->
+                            <div class="form-group mb-3">
+                                <label>
+                                    Batch Size
+                                </label>
+                                <input type="number" name="batch_size" class="form-control" placeholder="Batch Size" value="{{  batch_size }}">
+                            </div>
+                            <!-- error_sleep_second -->
+                            <div class="form-group mb-3">
+                                <label>
+                                    Error Sleep Second (Comma Seperated)
+                                </label>
+                                <input type="text" name="error_sleep_second_list" class="form-control" placeholder="Error Sleep Second" value="{{  error_sleep_second_list }}">
+                            </div>
+                            <!-- password -->
+                            <div class="form-group mb-3">
+                                <label>
+                                    Password
+                                </label>
+                                <input type="password" name="security_password" class="form-control" placeholder="Password">
+                            </div>
+                            <input type="submit" value="Submit" class="btn btn-primary">
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="flush-headingThree">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#flush-collapseThree" aria-expanded="false" aria-controls="flush-collapseThree">
+                        <h4>
+                            Main Settings
+                        </h4>
+                    </button>
+                </h2>
+                <div id="flush-collapseThree" class="accordion-collapse collapse" aria-labelledby="flush-headingThree"
+                    data-bs-parent="#accordionFlushExample">
+                    <div class="accordion-body">
+                        <!-- error messge from sesssion -->
+                        {% if error_message %}
+                        <div class="alert alert-danger" role="alert">
+                            {{ error_message }}
+                        </div>
+                        {% endif %}
+                        <form action="/store-main-config" method="post" class="text-start">
+                            <div class="form-group mb-3">
+                                <label>
+                                    Company Name
+                                </label>
+                                <input type="text" name="company_name" class="form-control" placeholder="Company Name" value="{{  company_name }}">
+                            </div>
+                            <!-- batch size -->
+                            <div class="form-group mb-3">
+                                <label>
+                                    New Password
+                                </label>
+                                <input type="password" name="new_password" class="form-control" placeholder="New Password">
+                            </div>
+                            <div class="form-group mb-3">
+                                <label>
+                                    Password
+                                </label>
+                                <input type="password" name="security_password" class="form-control" placeholder="Password">
+                            </div>
+                            <input type="submit" value="Submit" class="btn btn-primary">
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 p-2 ps-4">
+        <h4>HS Code Status</h4>
+        <table class="table table-bordered w-75">
+            <thead class="table-dark">
+                <tr>
+                    <th>SKU</th>
+                    <th>Status</th>
+                    <th>Message</th>
+                </tr>
+            </thead>
+            <tbody id="product_table_body">
+                <tr>
+                    <td colspan="3">
+                        No Data Found
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <script>
@@ -118,7 +240,7 @@
 
 
     // when use click submit, make ajax request and submit data to /start 
-    $('form').submit(function (e) {
+    $('form#upload-form').submit(function (e) {
         e.preventDefault();
         // check if file is selected file list is empty
         if (uploadFileList.length == 0) {
@@ -126,7 +248,7 @@
             return;
         }
         // take passwod as input , with hiddne input 
-        if (inputPassword()){
+        if (inputPassword()) {
             // create ajax request to /submit 
             console.log('submitting file');
             var formData = new FormData();
@@ -136,12 +258,20 @@
 
             // disable upload button and set spinner 
             $('button[type="submit"]').html('Processing <i class="fas fa-spinner fa-spin"></i>');
-            
+
             $.ajax({
                 url: '/start',
                 type: 'POST',
                 data: formData,
                 success: function (data) {
+                },
+                error: function (data) {
+                    // console.log(data);
+                    // if data.status == 401, then show alert and reload the page 
+                    if (data.status == 401) {
+                        alert('Invalid Password');
+                        location.reload();
+                    }
                 },
                 cache: false,
                 contentType: false,
@@ -152,6 +282,11 @@
 
     // onclick reset button, post request to /reset 
     $('button[type="reset"]').click(function (e) {
+        if (!confirm("Do you want to reset all the data?")) {
+            return;
+        }
+
+        inputPassword();
         // disable reset button
         $('button[type="reset"]').prop('disabled', true);
 
@@ -159,15 +294,72 @@
         $.ajax({
             url: '/reset',
             type: 'POST',
+            data: {
+                security_password: security_password
+            },
             success: function (data) {
                 // console.log(data);
                 // reload the page 
                 // location.reload();
             },
+            error: function (data) {
+                if (data.status == 401) {
+                    alert('Invalid Password');
+                    location.reload();
+                }
+            },
             cache: false,
-            contentType: false,
-            processData: false
         });
+    });
+    // click on pause 
+    $('button[type="pause"]').click(function (e) {
+        e.preventDefault();
+        inputPassword();
+        // if text is pause, then make ajax call to /pause 
+        button_text = $('button[type="pause"]').text();
+        // strip of space and \n 
+        button_text = button_text.replace(/\s/g, '');
+        if (button_text == 'Pause') {
+            // disable pause button
+            $('button[type="pause"]').prop('disabled', true);
+            // make ajax call to /pause 
+            $.ajax({
+                url: '/pause',
+                type: 'POST',
+                data: {
+                    security_password: security_password
+                },
+                success: function (data) {
+                },
+                error : function (data) {
+                    if (data.status == 401) {
+                        alert('Invalid Password');
+                        location.reload();
+                    }
+                },
+                cache: false,
+            });
+        } else if (button_text == 'Resume') {
+            // disable pause button
+            $('button[type="pause"]').prop('disabled', true);
+            // make ajax call to /resume 
+            $.ajax({
+                url: '/resume',
+                type: 'POST',
+                data: {
+                    security_password: security_password
+                },
+                success: function (data) {
+                },
+                error : function (data) {
+                    if (data.status == 401) {
+                        alert('Invalid Password');
+                        location.reload();
+                    }
+                },
+                cache: false,
+            });
+        }
     });
     function inputPassword() {
         if (security_password == "") {
@@ -179,6 +371,33 @@
         }
         return true;
     }
+    function deleteFile(e) {
+        e.preventDefault();
+        // get file name 
+        console.log('delete file');
+        filename = $(this).data('filename');
+        // make ajax call to /delete-file 
+        $.ajax({
+            url: '/delete-file',
+            type: 'POST',
+            data: {
+                filename: filename
+            },
+            success: function (data) {
+                console.log(data);
+                // reload the page 
+                location.reload();
+            },
+            error: function (data) {
+                if (data.status == 401) {
+                    alert('Invalid Password');
+                    location.reload();
+                }
+            },
+            cache: false,
+        });
+    }
+    $(document).on('click', '.delete-link', deleteFile);
     // update progress bar and status
     function updateProgress() {
         $.ajax({
@@ -336,10 +555,40 @@
                     $('button[type="reset"]').prop('disabled', false);
                 }
 
+                if (data.all_product.length > 0){
+                    $('#product_table_body').empty();
+                    html = "";
+                    $.each(data.all_product, function (index, value) {
+                        // console.log('value :>> ', value);
+                        html += '<tr>';
+                        html += '<td>' + value.sku + '</td>';
+                        if (value.is_completed == 1){
+                            html += '<td><span class="text-secondary"><i class="fas fa-spinner fa-spin"></i> In Progress</span></td>';
+                        } else if (value.is_completed == 2){
+                            html += '<td><span class="text-warning"><i class="fas fa-exclamation-circle"></i> Paused</span></td>';
+                        } else if (value.is_completed == 3){
+                            html += '<td><span class="text-danger"><i class="fas fa-times-circle"></i> Error</span></td>';
+                        } else {
+                            html += '<td><span class="text-secondary"><i class="fas fa-spinner fa-spin"></i> In Progress</span></td>';
+                        }
+                        html += '<td>' + value.error_message + '</td>';
+                        html += '</tr>';
+                    });
+                    $('#product_table_body').append(html);
+                } else {
+                    $('#product_table_body').empty();
+                    html = "";
+                    html += '<tr>';
+                    html += '<td colspan="3">No Data Found</td>';
+                    html += '</tr>';
+                    $('#product_table_body').append(html);
+                }
+                // iterate over data.all_products and update table
+
                 // set time out to call updateProgress() again
                 setTimeout(function () {
                     updateProgress();
-                }, 5000);
+                }, 3000);
 
             },
             cache: false,
@@ -347,8 +596,6 @@
             processData: false
         });
     }
-    updatefilelist();
-    updateProgress();
     function updatefilelist() {
         // make ajax call to get list of files
         $.ajax({
@@ -362,17 +609,39 @@
                 html = "";
 
                 $.each(data.files, function (index, value) {
-                    // console.log('value :>> ', value);
-                    html += '<li><a href="/static/output/' + value.name + '">' + value.name + '</a><small> (' + value.last_modified + ')</small>';
-                    // if is_new addd a new badge
-                    if (value.is_new) {
-                        html += '<span class="badge bg-success ms-2">New</span>';
-                    }
-                    html += '</li>';
-
+                    console.log('value :>> ', value);
+                    html += `
+                            <li>
+                                <div class="row">
+                                    <div class="col-1">
+                                        <img class="excel-icon" src="static/image/excel_icon.png" alt="">
+                                    </div>
+                                    <div class="col-8 d-flex justify-content-start align-items-center">
+                                        <strong>
+                                            ${value.name}
+                                        </strong>
+                                        <small class="ms-2">
+                                            ${value.last_modified}
+                                        </small>
+                                        <!-- ṇew badge -->
+                                        ${value.is_new ? '<span class="badge bg-success ms-2">New</span>' : ''}
+                                    </div>
+                                    <div class="col-3 d-flex justify-content-end align-items-center m-0">
+                                        <!-- download icon  -->
+                                        <a href="/static/output/${value.name}" download class="action-link">
+                                            <i class="fas fa-download"></i>
+                                        </a>
+                                        <!-- to delete the file  -->
+                                        <a class="delete-link action-link ms-1" data-filename="${value.name}">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </li>
+                    `;
                 });
 
-                if (data.files.length == 0) {
+                if (!data.files.length && data.files.length <= 0) {
                     html += '<li>No files found</li>';
                 }
                 $('#filelist').append(html);
@@ -389,5 +658,7 @@
             processData: false
         });
     }
+    updatefilelist();
+    updateProgress();
 </script>
 {% endblock body %}

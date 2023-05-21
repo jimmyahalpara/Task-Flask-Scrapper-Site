@@ -1,4 +1,8 @@
-Error in fetching data from sku AMR1033676
-HTTPSConnectionPool(host='www.gsaadvantage.gov', port=443): Max retries exceeded with url: /advantage/rs/search/advantage_search?q=0:8AMR1033676&db=0&searchType=0 (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x000001E98BA101C0>: Failed to resolve 'www.gsaadvantage.gov' ([Errno 11001] getaddrinfo failed)"))
+Error in fetching data from gsin 11000085448366
+'NoneType' object has no attribute 'error_message'
 Error in fetching data from sku AMR1042183
-HTTPSConnectionPool(host='www.gsaadvantage.gov', port=443): Max retries exceeded with url: /advantage/rs/search/advantage_search?q=0:8AMR1042183&db=0&searchType=0 (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x00000229ED600160>: Failed to resolve 'www.gsaadvantage.gov' ([Errno 11001] getaddrinfo failed)"))
+'NoneType' object is not subscriptable
+Error in fetching data from sku UNV61683
+'>' not supported between instances of 'float' and 'NoneType'
+Error in fetching data from sku AVE17575
+'>' not supported between instances of 'float' and 'NoneType'

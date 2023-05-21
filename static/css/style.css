@@ -50,13 +50,34 @@ form {
     font-family: inherit !important;
 }
 
+.accordion-item {
+    border: 2px solid #000000 !important;
+    border-radius: 5px;
+    /* padding: 10px; */
+    margin: 5px;
+}
+
+.accordion-button {
+    background-color: white !important;
+}
+
+.accordion-button:not(.collapsed) {
+    background-color: white !important;
+    color: black !important;
+    box-shadow: none !important;
+}
+
+/* remove ul padding */
+#filelist {
+    padding: 0;
+    margin: 0;
+}
 /* remove decorration from #flies list  */
 #filelist li {
     list-style: none;
     padding: 0;
     margin: 0;
-    border: 1px solid #00000010;
-    width: 40%;
+    border: 1px solid #00000073;
     padding: 10px;
     margin: 5px;
 }
@@ -64,6 +85,28 @@ form {
 #filelist li:hover {
     background-color: #00000010;
 }
+
+.excel-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+}
+
+
+.action-link {
+    color: #000000;
+    text-decoration: none;
+    font-weight: bold;
+    border: 1px solid #000000;
+    border-radius: 5px;
+    padding: 5px 10px;
+}
+
+.action-link:hover {
+    background-color: #000000;
+    color: white;
+}
+
 
 
 
