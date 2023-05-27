@@ -1,8 +1,28 @@
-Error in fetching data from gsin 11000085448366
+Error in fetching data from gsin 11000067899086
 'NoneType' object has no attribute 'error_message'
-Error in fetching data from sku AMR1042183
+Error in fetching data from sku ZPE1041414
 'NoneType' object is not subscriptable
-Error in fetching data from sku UNV61683
-'>' not supported between instances of 'float' and 'NoneType'
-Error in fetching data from sku AVE17575
-'>' not supported between instances of 'float' and 'NoneType'
+Error in fetching data from gsin 11000097416238
+'NoneType' object has no attribute 'error_message'
+Error in fetching data from sku AMR1001620
+'NoneType' object is not subscriptable
+Error in fetching data from gsin 11000097416498
+'NoneType' object has no attribute 'error_message'
+Error in fetching data from sku AMR1003121
+'NoneType' object is not subscriptable
+Error in fetching data from gsin 11000097415739
+'NoneType' object has no attribute 'error_message'
+Error in fetching data from sku AMR1003094
+'NoneType' object is not subscriptable
+Error in fetching data from gsin 11000085098370
+'NoneType' object has no attribute 'error_message'
+Error in fetching data from sku AMR1003020
+'NoneType' object is not subscriptable
+Error in fetching data from gsin 11000072947645
+'NoneType' object has no attribute 'error_message'
+Error in fetching data from sku AMR1003261
+'NoneType' object is not subscriptable
+Error in fetching data from gsin 11000072944320
+'NoneType' object has no attribute 'error_message'
+Error in fetching data from sku AMR1003110
+'NoneType' object is not subscriptable

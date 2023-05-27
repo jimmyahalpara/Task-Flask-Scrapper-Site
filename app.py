@@ -7,11 +7,12 @@ import multiprocessing as mp
 # from app import db, Product
 import time
 import hashlib
-
+import os
 app = Flask(__name__)
-# connection to mysql database using password NO
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:@localhost:3306/scrapper'
+application = app
 
+# connection to mysql datbase uri from env variable 
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://scraper:scraper@localhost:3306/scraper'
 db = SQLAlchemy(app)
 
 class ApplicationState(db.Model):
@@ -33,6 +34,9 @@ class RunTimeConfig(db.Model):
     key = db.Column(db.String(80), index=True, nullable=False)
     # text column
     value = db.Column(db.String(300), nullable=False)
+
+    def __repr__(self):
+        return '<RunTimeConfig %r>' % self.key
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     # sku column as index (not unique) 
@@ -458,7 +462,7 @@ def read_data_from_excel_file(file_path, main_config):
         sku = str(row[0])
         # seperate_sku_process(sku)
         # seperate sku process
-        process = mp.Process(target=seperate_sku_process, args=(sku,i,main_config['company_name']))
+        process = mp.Process(target=seperate_sku_process, args=(sku,i,main_config['company_name'], get_runtime_config))
         process.start()
         process_collection.append(process)
         # sleep for 1 second
@@ -467,6 +471,59 @@ def read_data_from_excel_file(file_path, main_config):
         run_time_config = get_runtime_config()
         time.sleep(int(run_time_config['sleep_between_sku']))
         if i % int(run_time_config['batch_size']) == 0:
+            # until process_collection is not empty, pop one process and join
+            while len(process_collection) > 0:
+                p = process_collection.pop()
+                print("joining process " + str(p))
+                p.join()
+        i+=1
+    
+    while len(process_collection) > 0:
+        p = process_collection.pop()
+        print("joining process " + str(p))
+        p.join()
+    products = Product.query.filter(Product.is_completed != 4).all()
+    # iterate over each product
+    i = 0
+    for product in products:
+        print("Retrying for sku " + product.sku)
+        # check if application state is 3
+        pause_loop = True
+        while pause_loop:
+            # get application state , latest, no cashing 
+            application_state = ApplicationState.query.filter_by(key='application_state_code').first()
+            db.session.refresh(application_state)
+            # if application state is 3 then sleep for 5 seconds
+            print("status",application_state.value, application_state.value == '3', application_state.value == 3)
+            if application_state.value == '3':
+                print("Application is paused")
+                # sleep for 5 seconds
+                time.sleep(5)
+                continue
+            elif application_state.value == '0':
+                # stop the process
+                print("Application is stopped")
+                return {
+                    'status': 'success'
+                }
+            else:
+                print("Application is running")
+                pause_loop = False
+
+
+        # take first column as sku 
+        sku = str(product.sku)
+        # seperate_sku_process(sku)
+        # seperate sku process
+        process = mp.Process(target=seperate_sku_process, args=(sku,i,main_config['company_name'], get_runtime_config))
+        process.start()
+        process_collection.append(process)
+        # sleep for 1 second
+        print("started process for sku " + sku + " i " + str(i))
+
+        run_time_config = get_runtime_config()
+        time.sleep(int(run_time_config['sleep_between_sku']))
+        if i % 1 == 0:
             # until process_collection is not empty, pop one process and join
             while len(process_collection) > 0:
                 p = process_collection.pop()
@@ -483,6 +540,8 @@ def read_data_from_excel_file(file_path, main_config):
     products = Product.query.all()
     # create a dataframe from products
     df = pd.DataFrame([product.to_dict() for product in products])
+    # drop is_completed and error_message column
+    df = df.drop(['is_completed', 'error_message'], axis=1)
     # save datafraome to excel file , use date time in format YYYY_MM_DD_HH_MM_SS as file name
     df.to_excel("static/output/output_"  +  time.strftime("%Y_%m_%d_%H_%M_%S") + ".xlsx")
     # set application state to 4
@@ -493,9 +552,14 @@ def read_data_from_excel_file(file_path, main_config):
     db.session.commit()
 
 
-def seperate_sku_process(sku, i, company_name):
-    from app import app, db, Product
+def seperate_sku_process(sku, i, company_name, get_runtime_config):
+    from app import app, db, Product, RunTimeConfig
     with app.app_context():
+        run_time_configs = RunTimeConfig.query.filter_by(key='error_sleep_second_list').first()
+        # get error_sleep_second_list
+        error_sleep_second_list = run_time_configs.value.split(',')
+        # strip and convert to int
+        error_sleep_second_list = [int(i.strip()) for i in error_sleep_second_list]
         # update product for sku status to 1 
         # get product from database
         product = Product.query.filter_by(sku=sku).first()
@@ -503,6 +567,7 @@ def seperate_sku_process(sku, i, company_name):
         setattr(product, 'is_completed', 1)
         # commit the changes
         db.session.commit()
+        # runtime_config = {row.key: row.value for row in RunTimeConfig.query.all()}
     # search_key_1 will be sku itself 
     search_key_1 = sku
     # search_key_2 will be only numeric part of sku
@@ -512,8 +577,12 @@ def seperate_sku_process(sku, i, company_name):
     url = "https://www.gsaadvantage.gov/advantage/rs/search/advantage_search?q=0:8" + sku + "&db=0&searchType=0"
     # get data from url
     # with content type json
+    
     try:
-        wait_times = [22, 42, 62, 82, 102, 122, 142, 162, 182, 202]
+        wait_times = error_sleep_second_list
+        print("wait_times", wait_times)
+        # strip and convert to int 
+        # wait_times = [int(i.strip()) for i in wait_times]
         wait_times_len = len(wait_times)
         wait_index = 0
         not_break = True
@@ -560,7 +629,7 @@ def seperate_sku_process(sku, i, company_name):
         company_value = None
         for product in data['solrResultList']['productResults']:
             if search_key_1 == product['mfrPartNumber'] or search_key_2 == product['mfrPartNumber']:
-                res = fetch_top_contractor_for_gsin(product['gsin'], sku, company_name)
+                res = fetch_top_contractor_for_gsin(product['gsin'], sku, company_name, get_runtime_config)
                 cnt = res['contractors']
                 if company_value == None or (res['company_value'] and company_value > res['company_value']):
                     company_value = res['company_value']
@@ -609,13 +678,19 @@ def seperate_sku_process(sku, i, company_name):
             # error message 
             log_file.write(str(e) + "\n")
 
-def fetch_top_contractor_for_gsin(gsin, sku, company_name):
+def fetch_top_contractor_for_gsin(gsin, sku, company_name, get_runtime_config):
     # https://www.gsaadvantage.gov/advantage/rs/catalog/product_detail?gsin=11000000949094
     url = "https://www.gsaadvantage.gov/advantage/rs/catalog/product_detail?gsin=" + gsin
     # get data from url
     # with content type json
+    
     try:
-        wait_times = [22, 42, 62, 82, 102, 122, 142, 162, 182, 202]
+        with app.app_context():
+            runtime_config = {row.key: row.value for row in RunTimeConfig.query.all()}
+        wait_times = runtime_config['error_sleep_second_list'].split(',')
+        # wait_times = [22, 33, 44, 55, 66, 77, 88, 99, 110, 121];
+        # strip and convert to int 
+        wait_times = [int(i.strip()) for i in wait_times]
         wait_times_len = len(wait_times)
         wait_index = 0
         not_break = True
