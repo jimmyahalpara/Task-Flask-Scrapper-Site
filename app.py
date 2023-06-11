@@ -11,8 +11,8 @@ import os
 app = Flask(__name__)
 application = app
 
-# connection to mysql datbase uri from env variable 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://scraper:scraper@localhost:3306/scraper'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://scraperuser:so#meScrapper123123Password@localhost:3306/scraper'
+# connection to mysql datbase uri from env variab
 db = SQLAlchemy(app)
 
 class ApplicationState(db.Model):
@@ -199,12 +199,12 @@ def output_files():
     import os
     from datetime import datetime
     files = []
-    for file in os.listdir("static/output"):
+    for file in os.listdir("/var/www/scraper/main/static/output"):
         files.append({
             'name': file,
-            'last_modified': datetime.fromtimestamp(os.path.getmtime("static/output/" + file)).strftime("%Y-%m-%d %H:%M:%S"),
+            'last_modified': datetime.fromtimestamp(os.path.getmtime("/var/www/scraper/main/static/output/" + file)).strftime("%Y-%m-%d %H:%M:%S"),
             # if the last modified date is less than 1 hr, then term it as new 
-            'is_new': True if (datetime.now() - datetime.fromtimestamp(os.path.getmtime("static/output/" + file))).total_seconds() < 300 else False
+            'is_new': True if (datetime.now() - datetime.fromtimestamp(os.path.getmtime("/var/www/scraper/main/static/output/" + file))).total_seconds() < 300 else False
         })
     # return as json 
     # reverset the list 
@@ -220,7 +220,7 @@ def delete_files():
     filename = request.form['filename']
     # delete file from static/output
     import os
-    os.remove("static/output/" + filename)
+    os.remove("/var/www/scraper/main/static/output/" + filename)
     return {
         'status': 'success'
     }
@@ -257,6 +257,9 @@ def progress():
 
 @app.route('/start', methods=['POST'])
 def start():
+    # from app import check_process
+    pid = os.getpid()
+    print("pid- 1", pid)
     # check password
     # get password from request
     password = request.form['security_password']
@@ -281,7 +284,44 @@ def start():
     db.session.commit()
     main_config = get_main_config()
     # store the excel file in static folder
-    return read_data_from_excel_file(request.files['file'], main_config)
+    file = request.files['file']
+    data = pd.read_excel(file)
+    process = mp.Process(target=read_data_from_excel_file, args=(data, main_config))
+    process.start()
+    process_pid = process.pid
+    check_pro = mp.Process(target=check_process, args=(process_pid,))
+    check_pro.start()
+    # join the process
+    process.join()
+    # kill the process
+    process.terminate()
+    return {
+        'status': 'success'
+    }
+
+
+@app.route('/resume-progress', methods=['GET'])
+def resume_progress():
+    # from app import check_process
+    # get pid from application state table
+    pid = ApplicationState.query.filter_by(key='process_id').first().value
+    if pid is None:
+        return "Great - pid " + str(pid)
+    # check if process is running
+    if check_pid(int(pid)):
+        return "Process is running........................"
+    # # get all the data from MainConfig table
+    main_config = get_main_config()
+    process = mp.Process(target=continue_process, args=(main_config,))
+    process.start()
+    process_pid = process.pid
+    check_pro = mp.Process(target=check_process, args=(process_pid,))
+    check_pro.start()
+    # join the process
+    process.join()
+    # kill the process
+    process.terminate()
+    return "Great - pid " + str(pid)
 
 @app.route('/pause', methods=['POST'])
 def pause():
@@ -310,32 +350,61 @@ def pause():
         'status': 'success'
     }
 
-@app.route('/resume', methods=['POST'])
-def resume():
-    # check password
-    # get password from request
-    password = request.form['security_password']
-    # find hash of the password to compare 
-    password_hash = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), b'salt', 150000)
-    password_hash = password_hash.hex()
-    # get password_hash from MainConfig table
-    main_config = MainConfig.query.filter_by(key='password_hash').first()
-    # check if password is correct
-    if password_hash != main_config.value:
-        # with http status code 401
-        return {
-            'status': 'error',
-            'message': 'Incorrect Password'
-        }, 401
-    # set application_state_code to 2
-    state = ApplicationState.query.filter_by(key='application_state_code').first()
-    # set value to 2
-    state.value = '2'
-    # commit the changes
-    db.session.commit()
-    return {
-        'status': 'success'
-    }
+@app.route('/resume-progress', methods=['GET'])
+def resume_progress():
+    # get num_try from session 
+    num_try = session.get('num_try', 0)
+    session['num_try'] = num_try + 1
+    # store it back 
+    session.modified = True
+    # from app import check_process
+    # get pid from application state table
+    pid = ApplicationState.query.filter_by(key='process_id').first().value
+
+    if pid is None:
+        # increment num_try and store in session
+        
+        return "No Process ID found - application is not running - pid " + str(pid) + " num_try " + str(num_try)
+    # check if process is running
+    if check_pid(int(pid)) and num_try < 5:
+        return "Process is running........................ " + str(pid) + " num_try " + str(num_try)
+    
+    # # get all the data from MainConfig table
+    main_config = get_main_config()
+    # set num_try to 0
+    session['num_try'] = 0
+    # store it back
+    session.modified = True
+    process = mp.Process(target=continue_process, args=(main_config,))
+    process.start()
+    process_pid = process.pid
+    check_pro = mp.Process(target=check_process, args=(process_pid,))
+    check_pro.start()
+    # join the process
+    process.join()
+    # kill the process
+    process.terminate()
+    return "Great - pid " + str(pid)
+
+# force generate excel file 
+@app.route('/force-generate-excel-file', methods=['GET'])
+def force_generate_excel_file():
+    # type from query 
+    type_q = request.args.get('type')
+
+    if type_q == 'complete':
+        products = Product.query.filter(Product.is_completed == 4).all()
+    else:
+        products = Product.query.filter(db.not_(Product.is_completed != 4) | (Product.is_completed == None)).all()
+
+    # create a dataframe from products
+    df = pd.DataFrame([product.to_dict() for product in products])
+    # drop is_completed and error_message column
+    df = df.drop(['is_completed', 'error_message'], axis=1)
+    # save datafraome to excel file , use date time in format YYYY_MM_DD_HH_MM_SS as file name, without index
+    df.to_excel("/var/www/scraper/main/static/output/output_" + type_q + "_" + time.strftime("%Y_%m_%d_%H_%M_%S") + ".xlsx", index = False)
+    # redirect b ack to home page
+    return redirect('/')
 
 @app.route('/store-run-time-config', methods=['POST'])
 def store_run_time_config():
@@ -409,147 +478,329 @@ def store_main_config():
 # ---------------------
 # ---------------------
 
-process_collection = []
 # a function to read dat from excel file 
-def read_data_from_excel_file(file_path, main_config):
-    global app
-    # truncate Product table
-    Product.query.delete()
-    # commit the changes
-    db.session.commit()
-    # read data from excel file 
-    data = pd.read_excel(file_path)
-    # iterate over each row in data
-    i = 1
-    for index, row in data.iterrows():
-        product = Product(sku=row[0])
-        # add product to database
-        db.session.add(product)
+def read_data_from_excel_file(data, main_config):
+    from app import app, db, Product, ApplicationState
+    with app.app_context():
+        process_collection = []
+        # get current process id 
+        pid = os.getpid()
+        print("pid- 2", pid)
+        # check_process = mp.Process(target=check_process, args=(pid,))
+        # check_process.start()
+        # store process_id in ApplicationState table
+        state = ApplicationState.query.filter_by(key='process_id').first()
+        if state is None:
+            # create a new row in ApplicationState table
+            state = ApplicationState(key='process_id', value=str(pid))
+            # add state to database
+            db.session.add(state)
+            # commit the changes
+            db.session.commit()
+        else:
+            # update process_id
+            state.value = str(pid)
+            # commit the changes
+            db.session.commit()
+        # truncate Product table
+        Product.query.delete()
         # commit the changes
         db.session.commit()
-    # set application state to 2
-    state = ApplicationState.query.filter_by(key='application_state_code').first()
-    # set value to 2
-    state.value = '2'
-    # commit the changes
-    db.session.commit()
-    for index, row in data.iterrows():
-        # check if application state is 3
-        pause_loop = True
-        while pause_loop:
-            # get application state , latest, no cashing 
-            application_state = ApplicationState.query.filter_by(key='application_state_code').first()
-            db.session.refresh(application_state)
-            # if application state is 3 then sleep for 5 seconds
-            print("status",application_state.value, application_state.value == '3', application_state.value == 3)
-            if application_state.value == '3':
-                print("Application is paused")
-                # sleep for 5 seconds
-                time.sleep(5)
+        # read data from excel file 
+        # iterate over each row in data
+        i = 1
+        for index, row in data.iterrows():
+            product = Product(sku=row[0])
+            # add product to database
+            db.session.add(product)
+            # commit the changes
+            db.session.commit()
+        # set application state to 2
+        state = ApplicationState.query.filter_by(key='application_state_code').first()
+        # set value to 2
+        state.value = '2'
+        # commit the changes
+        db.session.commit()
+        for index, row in data.iterrows():
+            # check if application state is 3
+            pause_loop = True
+            while pause_loop:
+                # get application state , latest, no cashing 
+                application_state = ApplicationState.query.filter_by(key='application_state_code').first()
+                db.session.refresh(application_state)
+                # if application state is 3 then sleep for 5 seconds
+                print("status",application_state.value, application_state.value == '3', application_state.value == 3)
+                if application_state.value == '3':
+                    print("Application is paused")
+                    # sleep for 5 seconds
+                    time.sleep(5)
+                    continue
+                elif application_state.value == '0':
+                    # stop the process
+                    print("Application is stopped")
+                    exit()
+                else:
+                    print("Application is running")
+                    pause_loop = False
+
+
+            # take first column as sku 
+            sku = str(row[0])
+            # seperate_sku_process(sku)
+            # seperate sku process
+            process = mp.Process(target=seperate_sku_process, args=(sku,i,main_config['company_name'], get_runtime_config))
+            print(509)
+            process.start()
+            process_collection.append(process)
+            # sleep for 1 second
+            print("started process for sku " + sku + " i " + str(i))
+
+            run_time_config = get_runtime_config()
+            time.sleep(int(run_time_config['sleep_between_sku']))
+            if i % int(run_time_config['batch_size']) == 0:
+                # until process_collection is not empty, pop one process and join
+                while len(process_collection) > 0:
+                    p = process_collection.pop()
+                    print("joining process " + str(p))
+                    p.join()
+                    p.terminate()
+            i+=1
+        
+        while len(process_collection) > 0:
+            p = process_collection.pop()
+            print("joining process " + str(p))
+            p.join()
+            p.terminate()
+        products = Product.query.filter((Product.is_completed != 4) | (Product.is_completed == None)).all()
+        # iterate over each product
+        i = 0
+        for product in products:
+            if product.is_completed == 4:
+                print("Process already completed for product - " + product.sku)
                 continue
-            elif application_state.value == '0':
-                # stop the process
-                print("Application is stopped")
-                return {
-                    'status': 'success'
-                }
-            else:
-                print("Application is running")
-                pause_loop = False
+            print("Retrying for sku " + product.sku)
+            # check if application state is 3
+            pause_loop = True
+            while pause_loop:
+                # get application state , latest, no cashing 
+                application_state = ApplicationState.query.filter_by(key='application_state_code').first()
+                db.session.refresh(application_state)
+                # if application state is 3 then sleep for 5 seconds
+                print("status",application_state.value, application_state.value == '3', application_state.value == 3)
+                if application_state.value == '3':
+                    print("Application is paused")
+                    # sleep for 5 seconds
+                    time.sleep(5)
+                    continue
+                elif application_state.value == '0':
+                    # stop the process
+                    print("Application is stopped")
+                    return {
+                        'status': 'success'
+                    }
+                else:
+                    print("Application is running")
+                    pause_loop = False
 
 
-        # take first column as sku 
-        sku = str(row[0])
-        # seperate_sku_process(sku)
-        # seperate sku process
-        process = mp.Process(target=seperate_sku_process, args=(sku,i,main_config['company_name'], get_runtime_config))
-        process.start()
-        process_collection.append(process)
-        # sleep for 1 second
-        print("started process for sku " + sku + " i " + str(i))
+            # take first column as sku 
+            sku = str(product.sku)
+            # seperate_sku_process(sku)
+            # seperate sku process
+            process = mp.Process(target=seperate_sku_process, args=(sku,i,main_config['company_name'], get_runtime_config))
+            process.start()
+            process_collection.append(process)
+            # sleep for 1 second
+            print("started process for sku " + sku + " i " + str(i))
 
-        run_time_config = get_runtime_config()
-        time.sleep(int(run_time_config['sleep_between_sku']))
-        if i % int(run_time_config['batch_size']) == 0:
-            # until process_collection is not empty, pop one process and join
-            while len(process_collection) > 0:
-                p = process_collection.pop()
-                print("joining process " + str(p))
-                p.join()
-        i+=1
-    
-    while len(process_collection) > 0:
-        p = process_collection.pop()
-        print("joining process " + str(p))
-        p.join()
-    products = Product.query.filter(Product.is_completed != 4).all()
-    # iterate over each product
-    i = 0
-    for product in products:
-        print("Retrying for sku " + product.sku)
-        # check if application state is 3
-        pause_loop = True
-        while pause_loop:
-            # get application state , latest, no cashing 
-            application_state = ApplicationState.query.filter_by(key='application_state_code').first()
-            db.session.refresh(application_state)
-            # if application state is 3 then sleep for 5 seconds
-            print("status",application_state.value, application_state.value == '3', application_state.value == 3)
-            if application_state.value == '3':
-                print("Application is paused")
-                # sleep for 5 seconds
-                time.sleep(5)
+            run_time_config = get_runtime_config()
+            time.sleep(int(run_time_config['sleep_between_sku']))
+            if i % 1 == 0:
+                # until process_collection is not empty, pop one process and join
+                while len(process_collection) > 0:
+                    p = process_collection.pop()
+                    print("joining process " + str(p))
+                    p.join()
+                    p.terminate()
+            i+=1
+        # join all processes
+        while len(process_collection) > 0:
+            p = process_collection.pop()
+            print("joining process " + str(p))
+            p.join()
+            p.terminate()
+        
+        # get all the data from Product table in a dataframe 
+        products = Product.query.all()
+        # create a dataframe from products
+        df = pd.DataFrame([product.to_dict() for product in products])
+        # drop is_completed and error_message column
+        df = df.drop(['is_completed', 'error_message'], axis=1)
+        # save datafraome to excel file , use date time in format YYYY_MM_DD_HH_MM_SS as file name
+        df.to_excel("/var/www/scraper/main/static/output/output_"  +  time.strftime("%Y_%m_%d_%H_%M_%S") + ".xlsx")
+        # set application state to 4
+        state = ApplicationState.query.filter_by(key='application_state_code').first()
+        # set value to 4
+        state.value = '4'
+        # commit the changes
+        db.session.commit()
+
+# a function to read dat from excel file 
+def continue_process(main_config):
+    print("Continuing process")
+    from app import app, db, Product, ApplicationState
+    with app.app_context():
+        process_collection = []
+        # get current process id
+        pid = os.getpid()
+        # store process_id in ApplicationState table
+        state = ApplicationState.query.filter_by(key='process_id').first()
+        if state is None:
+            # create a new row in ApplicationState table
+            state = ApplicationState(key='process_id', value=str(pid))
+            # add state to database
+            db.session.add(state)
+            # commit the changes
+            db.session.commit()
+        else:
+            # update process_id
+            state.value = str(pid)
+            # commit the changes
+            db.session.commit()
+        # set application state to 2
+        state = ApplicationState.query.filter_by(key='application_state_code').first()
+        # set value to 2
+        state.value = '2'
+        # commit the changes
+        db.session.commit()
+
+        data = Product.query.filter((Product.is_completed != 4) | (Product.is_completed == None)).all()
+        print(len(data))
+        i = 0
+        for row in data:
+            # check if application state is 3
+            pause_loop = True
+            while pause_loop:
+                # get application state , latest, no cashing 
+                application_state = ApplicationState.query.filter_by(key='application_state_code').first()
+                db.session.refresh(application_state)
+                # if application state is 3 then sleep for 5 seconds
+                print("status",application_state.value, application_state.value == '3', application_state.value == 3)
+                if application_state.value == '3':
+                    print("Application is paused")
+                    # sleep for 5 seconds
+                    time.sleep(5)
+                    continue
+                elif application_state.value == '0':
+                    # stop the process
+                    print("Application is stopped")
+                    return {
+                        'status': 'success'
+                    }
+                else:
+                    print("Application is running")
+                    pause_loop = False
+
+
+            # take first column as sku 
+            sku = str(row.sku)
+            # seperate_sku_process(sku)
+            # seperate sku process
+            process = mp.Process(target=seperate_sku_process, args=(sku,i,main_config['company_name'], get_runtime_config))
+            process.start()
+            process_collection.append(process)
+            # sleep for 1 second
+            print("started process for sku " + sku + " i " + str(i))
+
+            run_time_config = get_runtime_config()
+            time.sleep(int(run_time_config['sleep_between_sku']))
+            if i % int(run_time_config['batch_size']) == 0:
+                # until process_collection is not empty, pop one process and join
+                while len(process_collection) > 0:
+                    p = process_collection.pop()
+                    print("joining process " + str(p))
+                    p.join()
+                    p.terminate()
+            i+=1
+        
+        while len(process_collection) > 0:
+            p = process_collection.pop()
+            print("joining process " + str(p))
+            p.join()
+            p.terminate()
+        products = Product.query.filter((Product.is_completed != 4) | (Product.is_completed == None)).all()
+        # iterate over each product
+        i = 0
+        for product in products:
+            if product.is_completed == 4:
+                print("Process already completed for product - " + product.sku)
                 continue
-            elif application_state.value == '0':
-                # stop the process
-                print("Application is stopped")
-                return {
-                    'status': 'success'
-                }
-            else:
-                print("Application is running")
-                pause_loop = False
+            print("Retrying for sku " + product.sku)
+            # check if application state is 3
+            pause_loop = True
+            while pause_loop:
+                # get application state , latest, no cashing 
+                application_state = ApplicationState.query.filter_by(key='application_state_code').first()
+                db.session.refresh(application_state)
+                # if application state is 3 then sleep for 5 seconds
+                print("status",application_state.value, application_state.value == '3', application_state.value == 3)
+                if application_state.value == '3':
+                    print("Application is paused")
+                    # sleep for 5 seconds
+                    time.sleep(5)
+                    continue
+                elif application_state.value == '0':
+                    # stop the process
+                    print("Application is stopped")
+                    return {
+                        'status': 'success'
+                    }
+                else:
+                    print("Application is running")
+                    pause_loop = False
 
 
-        # take first column as sku 
-        sku = str(product.sku)
-        # seperate_sku_process(sku)
-        # seperate sku process
-        process = mp.Process(target=seperate_sku_process, args=(sku,i,main_config['company_name'], get_runtime_config))
-        process.start()
-        process_collection.append(process)
-        # sleep for 1 second
-        print("started process for sku " + sku + " i " + str(i))
+            # take first column as sku 
+            sku = str(product.sku)
+            # seperate_sku_process(sku)
+            # seperate sku process
+            process = mp.Process(target=seperate_sku_process, args=(sku,i,main_config['company_name'], get_runtime_config))
+            process.start()
+            process_collection.append(process)
+            # sleep for 1 second
+            print("started process for sku " + sku + " i " + str(i))
 
-        run_time_config = get_runtime_config()
-        time.sleep(int(run_time_config['sleep_between_sku']))
-        if i % 1 == 0:
-            # until process_collection is not empty, pop one process and join
-            while len(process_collection) > 0:
-                p = process_collection.pop()
-                print("joining process " + str(p))
-                p.join()
-        i+=1
-    # join all processes
-    while len(process_collection) > 0:
-        p = process_collection.pop()
-        print("joining process " + str(p))
-        p.join()
-    
-    # get all the data from Product table in a dataframe 
-    products = Product.query.all()
-    # create a dataframe from products
-    df = pd.DataFrame([product.to_dict() for product in products])
-    # drop is_completed and error_message column
-    df = df.drop(['is_completed', 'error_message'], axis=1)
-    # save datafraome to excel file , use date time in format YYYY_MM_DD_HH_MM_SS as file name
-    df.to_excel("static/output/output_"  +  time.strftime("%Y_%m_%d_%H_%M_%S") + ".xlsx")
-    # set application state to 4
-    state = ApplicationState.query.filter_by(key='application_state_code').first()
-    # set value to 4
-    state.value = '4'
-    # commit the changes
-    db.session.commit()
+            run_time_config = get_runtime_config()
+            time.sleep(int(run_time_config['sleep_between_sku']))
+            if i % 1 == 0:
+                # until process_collection is not empty, pop one process and join
+                while len(process_collection) > 0:
+                    p = process_collection.pop()
+                    print("joining process " + str(p))
+                    p.join()
+                    p.terminate()
+            i+=1
+        # join all processes
+        while len(process_collection) > 0:
+            p = process_collection.pop()
+            print("joining process " + str(p))
+            p.join()
+            p.terminate()
+        
+        # get all the data from Product table in a dataframe 
+        products = Product.query.all()
+        # create a dataframe from products
+        df = pd.DataFrame([product.to_dict() for product in products])
+        # drop is_completed and error_message column
+        df = df.drop(['is_completed', 'error_message'], axis=1)
+        # save datafraome to excel file , use date time in format YYYY_MM_DD_HH_MM_SS as file name
+        df.to_excel("/var/www/scraper/main/static/output/output_"  +  time.strftime("%Y_%m_%d_%H_%M_%S") + ".xlsx")
+        # set application state to 4
+        state = ApplicationState.query.filter_by(key='application_state_code').first()
+        # set value to 4
+        state.value = '4'
+        # commit the changes
+        db.session.commit()
 
 
 def seperate_sku_process(sku, i, company_name, get_runtime_config):
@@ -672,11 +923,13 @@ def seperate_sku_process(sku, i, company_name, get_runtime_config):
         # log the error 
         print("Error in fetching data from sku " + sku)
         # write error in log file
-        with open("log.txt", "a") as log_file:
+        with open("/var/www/scraper/main/log.txt", "a") as log_file:
             # line number 
             log_file.write("Error in fetching data from sku " + sku + "\n")
             # error message 
             log_file.write(str(e) + "\n")
+        exit()
+        return False
 
 def fetch_top_contractor_for_gsin(gsin, sku, company_name, get_runtime_config):
     # https://www.gsaadvantage.gov/advantage/rs/catalog/product_detail?gsin=11000000949094
@@ -733,6 +986,12 @@ def fetch_top_contractor_for_gsin(gsin, sku, company_name, get_runtime_config):
                 continue
             not_break = False
         data = response.json()
+        if 'responseType' in data and data['responseType'] == 'ERROR':
+            return {
+                'company_value' : None,
+                'contractors' : []
+            }
+
         # iterate over productDetailVO.products
         products = data['productDetailVO']['products']
         min_value = None
@@ -750,17 +1009,23 @@ def fetch_top_contractor_for_gsin(gsin, sku, company_name, get_runtime_config):
         # log the error 
         print("Error in fetching data from gsin " + gsin)
         # write error in log file
-        with open("log.txt", "a") as log_file:
+        with open("/var/www/scraper/main/log.txt", "a") as log_file:
             log_file.write("Error in fetching data from gsin " + gsin + "\n")
             # error message 
             log_file.write(str(e) + "\n")
+        return {
+            'company_value' : None,
+            'contractors' : []
+        }
 
 def get_runtime_config():
-    # get all the data from RunTimeConfig table
-    run_time_config = RunTimeConfig.query.all()
-    # set key as index
-    run_time_config = {row.key: row.value for row in run_time_config}
-    return run_time_config
+    #from app import app, db, RunTimeConfig
+    #with app.app_context():
+        # get all the data from RunTimeConfig table
+        run_time_config = RunTimeConfig.query.all()
+        # set key as index
+        run_time_config = {row.key: row.value for row in run_time_config}
+        return run_time_config
 
 def get_main_config():
     # get all the data from MainConfig table
@@ -769,7 +1034,78 @@ def get_main_config():
     main_config = {row.key: row.value for row in main_config}
     return main_config
 
+def check_pid(pid):
+    import platform
+    if platform.system() == 'Windows':
+        # windows
+        import ctypes
+        kernel32 = ctypes.windll.kernel32
+        SYNCHRONIZE = 0x100000
+        process = kernel32.OpenProcess(SYNCHRONIZE, 0, pid)
+        if process != 0:
+            kernel32.CloseHandle(process)
+            return True
+        else:
+            return False
+    else:
+        # linux
+        import os
+        try:
+            os.kill(pid, 0)
+        except OSError:
+            return False
+        else:
+            return True
+            
+def check_process(pid):
+    print("----------------- ---- check_process called for pid " + str(pid))
+    from app import app, db, MainConfig, ApplicationState
+    with app.app_context():
+        while True:
+            # check if pid is running
+            if check_pid(int(pid)):
+                # sleep for 5 seconds
+                print("pid is running")
+                time.sleep(5)
+                continue
+            else:
+                print("---------------- pid is not running restarting for pid " + str(pid))
 
+                # check if Product table has any row with is_completed != 4
+                try:
+                    application_state = ApplicationState.query.filter_by(key='application_state_code').first()
+                    db.session.refresh(application_state)
+                    if application_state.value == '0' or application_state.value == '4':
+                        # stop the process
+                        print("Application is stopped")
+                        break
+                except Exception as e:
+                    print("Error in fetching data from ApplicationState table")
+                    # retrying in 10 seconds 
+                    time.sleep(240)
+                    continue
+
+                try:
+                    products = Product.query.filter(Product.is_completed != 4).count()
+                except Exception as e:
+                    print("Error in fetching data from Product table")
+                    time.sleep(240)
+                    continue
+                if products == 0:
+                    break
+                else: 
+                    main_config = get_main_config()
+                    process = mp.Process(target=continue_process, args=(main_config,))
+                    process.start()
+
+                    check_prc = mp.Process(target=check_process, args=(process.pid,))
+                    check_prc.start()
+                    # join the process
+                    process.join()
+                    # kill the process
+                    process.terminate()
+                    return "Great - pid " + str(pid)
+            
 if __name__ == "__main__":
     with app.app_context():
         # create all tables
@@ -849,3 +1185,4 @@ if __name__ == "__main__":
             db.session.commit()
 
     app.run(debug=True)
+
