@@ -337,3 +337,335 @@ Error in fetching data from sku TOL125
 
 Error in fetching data from sku TRK130211B
 UPDATE statement on table 'product' expected to update 1 row(s); 0 were matched.
+Error in fetching data from sku AMR1001620
+UPDATE statement on table 'product' expected to update 1 row(s); 0 were matched.
+Error in fetching data from sku PAC103049
+'NoneType' object has no attribute 'error_message'
+Error in fetching data from sku VEK90595
+
+Error in fetching data from sku SKLCF210X
+
+Error in fetching data from sku TEPTA67913
+UPDATE statement on table 'product' expected to update 1 row(s); 0 were matched.
+Error in fetching data from sku CNM2785B003AA
+UPDATE statement on table 'product' expected to update 1 row(s); 0 were matched.
+Error in fetching data from sku SAN2011280
+
+Error in fetching data from sku SAN1950749
+
+Error in fetching data from sku SAN33861PP
+UPDATE statement on table 'product' expected to update 1 row(s); 0 were matched.
+Error in fetching data from sku SAM17130
+UPDATE statement on table 'product' expected to update 1 row(s); 0 were matched.
+Error in fetching data from sku SAM14860
+
+Error in fetching data from sku PENS36036
+
+Error in fetching data from sku PENPD277TBP2PBC
+
+Error in fetching data from sku PENAL15ASW2
+(MySQLdb.OperationalError) (4031, 'The client was disconnected by the server because of inactivity. See wait_timeout and interactive_timeout for configuring this behavior.')
+[SQL: SELECT product.id AS product_id, product.sku AS product_sku, product.company_price AS product_company_price, product.contractor_1 AS product_contractor_1, product.price_1 AS product_price_1, product.has_sale_1 AS product_has_sale_1, product.contractor_2 AS product_contractor_2, product.price_2 AS product_price_2, product.has_sale_2 AS product_has_sale_2, product.contractor_3 AS product_contractor_3, product.price_3 AS product_price_3, product.has_sale_3 AS product_has_sale_3, product.contractor_4 AS product_contractor_4, product.price_4 AS product_price_4, product.has_sale_4 AS product_has_sale_4, product.contractor_5 AS product_contractor_5, product.price_5 AS product_price_5, product.has_sale_5 AS product_has_sale_5, product.contractor_6 AS product_contractor_6, product.price_6 AS product_price_6, product.has_sale_6 AS product_has_sale_6, product.contractor_7 AS product_contractor_7, product.price_7 AS product_price_7, product.has_sale_7 AS product_has_sale_7, product.contractor_8 AS product_contractor_8, product.price_8 AS product_price_8, product.has_sale_8 AS product_has_sale_8, product.contractor_9 AS product_contractor_9, product.price_9 AS product_price_9, product.has_sale_9 AS product_has_sale_9, product.contractor_10 AS product_contractor_10, product.price_10 AS product_price_10, product.has_sale_10 AS product_has_sale_10, product.is_completed AS product_is_completed, product.error_message AS product_error_message 
+FROM product 
+WHERE product.sku = %s]
+[parameters: ('PENAL15ASW2',)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+Error in fetching data from sku PENSES15CPC12
+UPDATE statement on table 'product' expected to update 1 row(s); 0 were matched.
+Error in fetching data from sku PAC5487
+UPDATE statement on table 'product' expected to update 1 row(s); 0 were matched.
+Error in fetching data from sku PAC103431
+
+Error in fetching data from sku PAC103027
+(MySQLdb.OperationalError) (2013, 'Lost connection to MySQL server during query')
+[SQL: SELECT product.id AS product_id, product.sku AS product_sku, product.company_price AS product_company_price, product.contractor_1 AS product_contractor_1, product.price_1 AS product_price_1, product.has_sale_1 AS product_has_sale_1, product.contractor_2 AS product_contractor_2, product.price_2 AS product_price_2, product.has_sale_2 AS product_has_sale_2, product.contractor_3 AS product_contractor_3, product.price_3 AS product_price_3, product.has_sale_3 AS product_has_sale_3, product.contractor_4 AS product_contractor_4, product.price_4 AS product_price_4, product.has_sale_4 AS product_has_sale_4, product.contractor_5 AS product_contractor_5, product.price_5 AS product_price_5, product.has_sale_5 AS product_has_sale_5, product.contractor_6 AS product_contractor_6, product.price_6 AS product_price_6, product.has_sale_6 AS product_has_sale_6, product.contractor_7 AS product_contractor_7, product.price_7 AS product_price_7, product.has_sale_7 AS product_has_sale_7, product.contractor_8 AS product_contractor_8, product.price_8 AS product_price_8, product.has_sale_8 AS product_has_sale_8, product.contractor_9 AS product_contractor_9, product.price_9 AS product_price_9, product.has_sale_9 AS product_has_sale_9, product.contractor_10 AS product_contractor_10, product.price_10 AS product_price_10, product.has_sale_10 AS product_has_sale_10, product.is_completed AS product_is_completed, product.error_message AS product_error_message 
+FROM product 
+WHERE product.sku = %s]
+[parameters: ('PAC103027',)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+Error in fetching data from sku PAC103012
+(MySQLdb.OperationalError) (2013, 'Lost connection to MySQL server during query')
+[SQL: SELECT product.id AS product_id, product.sku AS product_sku, product.company_price AS product_company_price, product.contractor_1 AS product_contractor_1, product.price_1 AS product_price_1, product.has_sale_1 AS product_has_sale_1, product.contractor_2 AS product_contractor_2, product.price_2 AS product_price_2, product.has_sale_2 AS product_has_sale_2, product.contractor_3 AS product_contractor_3, product.price_3 AS product_price_3, product.has_sale_3 AS product_has_sale_3, product.contractor_4 AS product_contractor_4, product.price_4 AS product_price_4, product.has_sale_4 AS product_has_sale_4, product.contractor_5 AS product_contractor_5, product.price_5 AS product_price_5, product.has_sale_5 AS product_has_sale_5, product.contractor_6 AS product_contractor_6, product.price_6 AS product_price_6, product.has_sale_6 AS product_has_sale_6, product.contractor_7 AS product_contractor_7, product.price_7 AS product_price_7, product.has_sale_7 AS product_has_sale_7, product.contractor_8 AS product_contractor_8, product.price_8 AS product_price_8, product.has_sale_8 AS product_has_sale_8, product.contractor_9 AS product_contractor_9, product.price_9 AS product_price_9, product.has_sale_9 AS product_has_sale_9, product.contractor_10 AS product_contractor_10, product.price_10 AS product_price_10, product.has_sale_10 AS product_has_sale_10, product.is_completed AS product_is_completed, product.error_message AS product_error_message 
+FROM product 
+WHERE product.sku = %s]
+[parameters: ('PAC103012',)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+Error in fetching data from sku PAC103019
+(MySQLdb.OperationalError) (2013, 'Lost connection to MySQL server during query')
+[SQL: SELECT product.id AS product_id, product.sku AS product_sku, product.company_price AS product_company_price, product.contractor_1 AS product_contractor_1, product.price_1 AS product_price_1, product.has_sale_1 AS product_has_sale_1, product.contractor_2 AS product_contractor_2, product.price_2 AS product_price_2, product.has_sale_2 AS product_has_sale_2, product.contractor_3 AS product_contractor_3, product.price_3 AS product_price_3, product.has_sale_3 AS product_has_sale_3, product.contractor_4 AS product_contractor_4, product.price_4 AS product_price_4, product.has_sale_4 AS product_has_sale_4, product.contractor_5 AS product_contractor_5, product.price_5 AS product_price_5, product.has_sale_5 AS product_has_sale_5, product.contractor_6 AS product_contractor_6, product.price_6 AS product_price_6, product.has_sale_6 AS product_has_sale_6, product.contractor_7 AS product_contractor_7, product.price_7 AS product_price_7, product.has_sale_7 AS product_has_sale_7, product.contractor_8 AS product_contractor_8, product.price_8 AS product_price_8, product.has_sale_8 AS product_has_sale_8, product.contractor_9 AS product_contractor_9, product.price_9 AS product_price_9, product.has_sale_9 AS product_has_sale_9, product.contractor_10 AS product_contractor_10, product.price_10 AS product_price_10, product.has_sale_10 AS product_has_sale_10, product.is_completed AS product_is_completed, product.error_message AS product_error_message 
+FROM product 
+WHERE product.sku = %s]
+[parameters: ('PAC103019',)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+Error in fetching data from sku WAU22533
+
+Error in fetching data from sku MAX638004
+UPDATE statement on table 'product' expected to update 1 row(s); 0 were matched.
+Error in fetching data from sku LEXX654X41G
+UPDATE statement on table 'product' expected to update 1 row(s); 0 were matched.
+Error in fetching data from sku KCS10368
+UPDATE statement on table 'product' expected to update 1 row(s); 0 were matched.
+Error in fetching data from sku KCS69575
+
+Error in fetching data from sku IVRCLI8PC
+UPDATE statement on table 'product' expected to update 1 row(s); 0 were matched.
+Error in fetching data from sku IVRD2150C
+
+Error in fetching data from sku IVRCLI251XLB
+UPDATE statement on table 'product' expected to update 1 row(s); 0 were matched.
+Error in fetching data from sku IVR63XLTRI
+
+Error in fetching data from sku MCR522LM
+UPDATE statement on table 'product' expected to update 1 row(s); 0 were matched.
+Error in fetching data from sku HOD3491
+UPDATE statement on table 'product' expected to update 1 row(s); 0 were matched.
+Error in fetching data from sku HOD28102
+UPDATE statement on table 'product' expected to update 1 row(s); 0 were matched.
+Error in fetching data from sku HOD1556
+
+Error in fetching data from sku HOD5226
+UPDATE statement on table 'product' expected to update 1 row(s); 0 were matched.
+Error in fetching data from sku HON10583RCC
+
+Error in fetching data from sku HONSW3054ENDK
+UPDATE statement on table 'product' expected to update 1 row(s); 0 were matched.
+Error in fetching data from sku HEWCF362X
+
+Error in fetching data from sku HEWCE505X
+(MySQLdb.OperationalError) (2013, 'Lost connection to MySQL server during query')
+[SQL: SELECT product.id AS product_id, product.sku AS product_sku, product.company_price AS product_company_price, product.contractor_1 AS product_contractor_1, product.price_1 AS product_price_1, product.has_sale_1 AS product_has_sale_1, product.contractor_2 AS product_contractor_2, product.price_2 AS product_price_2, product.has_sale_2 AS product_has_sale_2, product.contractor_3 AS product_contractor_3, product.price_3 AS product_price_3, product.has_sale_3 AS product_has_sale_3, product.contractor_4 AS product_contractor_4, product.price_4 AS product_price_4, product.has_sale_4 AS product_has_sale_4, product.contractor_5 AS product_contractor_5, product.price_5 AS product_price_5, product.has_sale_5 AS product_has_sale_5, product.contractor_6 AS product_contractor_6, product.price_6 AS product_price_6, product.has_sale_6 AS product_has_sale_6, product.contractor_7 AS product_contractor_7, product.price_7 AS product_price_7, product.has_sale_7 AS product_has_sale_7, product.contractor_8 AS product_contractor_8, product.price_8 AS product_price_8, product.has_sale_8 AS product_has_sale_8, product.contractor_9 AS product_contractor_9, product.price_9 AS product_price_9, product.has_sale_9 AS product_has_sale_9, product.contractor_10 AS product_contractor_10, product.price_10 AS product_price_10, product.has_sale_10 AS product_has_sale_10, product.is_completed AS product_is_completed, product.error_message AS product_error_message 
+FROM product 
+WHERE product.sku = %s]
+[parameters: ('HEWCE505X',)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+Error in fetching data from sku HONBTX42LPR8
+(MySQLdb.OperationalError) (2013, 'Lost connection to MySQL server during query')
+[SQL: SELECT product.id AS product_id, product.sku AS product_sku, product.company_price AS product_company_price, product.contractor_1 AS product_contractor_1, product.price_1 AS product_price_1, product.has_sale_1 AS product_has_sale_1, product.contractor_2 AS product_contractor_2, product.price_2 AS product_price_2, product.has_sale_2 AS product_has_sale_2, product.contractor_3 AS product_contractor_3, product.price_3 AS product_price_3, product.has_sale_3 AS product_has_sale_3, product.contractor_4 AS product_contractor_4, product.price_4 AS product_price_4, product.has_sale_4 AS product_has_sale_4, product.contractor_5 AS product_contractor_5, product.price_5 AS product_price_5, product.has_sale_5 AS product_has_sale_5, product.contractor_6 AS product_contractor_6, product.price_6 AS product_price_6, product.has_sale_6 AS product_has_sale_6, product.contractor_7 AS product_contractor_7, product.price_7 AS product_price_7, product.has_sale_7 AS product_has_sale_7, product.contractor_8 AS product_contractor_8, product.price_8 AS product_price_8, product.has_sale_8 AS product_has_sale_8, product.contractor_9 AS product_contractor_9, product.price_9 AS product_price_9, product.has_sale_9 AS product_has_sale_9, product.contractor_10 AS product_contractor_10, product.price_10 AS product_price_10, product.has_sale_10 AS product_has_sale_10, product.is_completed AS product_is_completed, product.error_message AS product_error_message 
+FROM product 
+WHERE product.sku = %s]
+[parameters: ('HONBTX42LPR8',)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+Error in fetching data from sku HEWCF382A
+(MySQLdb.OperationalError) (2013, 'Lost connection to MySQL server during query')
+[SQL: SELECT product.id AS product_id, product.sku AS product_sku, product.company_price AS product_company_price, product.contractor_1 AS product_contractor_1, product.price_1 AS product_price_1, product.has_sale_1 AS product_has_sale_1, product.contractor_2 AS product_contractor_2, product.price_2 AS product_price_2, product.has_sale_2 AS product_has_sale_2, product.contractor_3 AS product_contractor_3, product.price_3 AS product_price_3, product.has_sale_3 AS product_has_sale_3, product.contractor_4 AS product_contractor_4, product.price_4 AS product_price_4, product.has_sale_4 AS product_has_sale_4, product.contractor_5 AS product_contractor_5, product.price_5 AS product_price_5, product.has_sale_5 AS product_has_sale_5, product.contractor_6 AS product_contractor_6, product.price_6 AS product_price_6, product.has_sale_6 AS product_has_sale_6, product.contractor_7 AS product_contractor_7, product.price_7 AS product_price_7, product.has_sale_7 AS product_has_sale_7, product.contractor_8 AS product_contractor_8, product.price_8 AS product_price_8, product.has_sale_8 AS product_has_sale_8, product.contractor_9 AS product_contractor_9, product.price_9 AS product_price_9, product.has_sale_9 AS product_has_sale_9, product.contractor_10 AS product_contractor_10, product.price_10 AS product_price_10, product.has_sale_10 AS product_has_sale_10, product.is_completed AS product_is_completed, product.error_message AS product_error_message 
+FROM product 
+WHERE product.sku = %s]
+[parameters: ('HEWCF382A',)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+Error in fetching data from sku HEWCF382A
+UPDATE statement on table 'product' expected to update 1 row(s); 0 were matched.
+Error in fetching data from sku HEWCR670A
+UPDATE statement on table 'product' expected to update 1 row(s); 0 were matched.
+Error in fetching data from sku HEW112101
+
+Error in fetching data from sku EPSS450081
+
+Error in fetching data from sku EPSS041667
+UPDATE statement on table 'product' expected to update 1 row(s); 0 were matched.
+Error in fetching data from sku EPSS045314
+
+Error in fetching data from sku EPSSP91204
+UPDATE statement on table 'product' expected to update 1 row(s); 0 were matched.
+Error in fetching data from sku EPST124220S
+UPDATE statement on table 'product' expected to update 1 row(s); 0 were matched.
+Error in fetching data from sku EPST124520S
+UPDATE statement on table 'product' expected to update 1 row(s); 0 were matched.
+Error in fetching data from sku EPST676XL320S
+UPDATE statement on table 'product' expected to update 1 row(s); 0 were matched.
+Error in fetching data from sku DIX88813
+UPDATE statement on table 'product' expected to update 1 row(s); 0 were matched.
+Error in fetching data from sku DURDA10B16ZM10
+
+Error in fetching data from sku DURDA13B8ZM09
+
+Error in fetching data from sku CWNET0310MB
+
+Error in fetching data from sku COS033959
+UPDATE statement on table 'product' expected to update 1 row(s); 0 were matched.
+Error in fetching data from sku CLI87207
+UPDATE statement on table 'product' expected to update 1 row(s); 0 were matched.
+Error in fetching data from sku MACMLFF31
+
+Error in fetching data from sku CFS4156705CT
+UPDATE statement on table 'product' expected to update 1 row(s); 0 were matched.
+Error in fetching data from sku CNM1248C001
+UPDATE statement on table 'product' expected to update 1 row(s); 0 were matched.
+Error in fetching data from sku CNM3252C001
+UPDATE statement on table 'product' expected to update 1 row(s); 0 were matched.
+Error in fetching data from sku CNM3724C001
+UPDATE statement on table 'product' expected to update 1 row(s); 0 were matched.
+Error in fetching data from sku BRT3010
+UPDATE statement on table 'product' expected to update 1 row(s); 0 were matched.
+Error in fetching data from sku BRTTZEFX231
+UPDATE statement on table 'product' expected to update 1 row(s); 0 were matched.
+Error in fetching data from sku BRTM231
+
+Error in fetching data from sku BRTTC20Z1
+UPDATE statement on table 'product' expected to update 1 row(s); 0 were matched.
+Error in fetching data from sku BRTTZEMQP35
+UPDATE statement on table 'product' expected to update 1 row(s); 0 were matched.
+Error in fetching data from sku BRTTZE121
+
+Error in fetching data from sku BRTTZE451
+
+Error in fetching data from sku BICCSEM11BK
+
+Error in fetching data from sku BICFPINFAP10AST
+
+Error in fetching data from sku BICMP11
+
+Error in fetching data from sku BICGSM609AST
+(MySQLdb.OperationalError) (2013, 'Lost connection to MySQL server during query')
+[SQL: SELECT product.id AS product_id, product.sku AS product_sku, product.company_price AS product_company_price, product.contractor_1 AS product_contractor_1, product.price_1 AS product_price_1, product.has_sale_1 AS product_has_sale_1, product.contractor_2 AS product_contractor_2, product.price_2 AS product_price_2, product.has_sale_2 AS product_has_sale_2, product.contractor_3 AS product_contractor_3, product.price_3 AS product_price_3, product.has_sale_3 AS product_has_sale_3, product.contractor_4 AS product_contractor_4, product.price_4 AS product_price_4, product.has_sale_4 AS product_has_sale_4, product.contractor_5 AS product_contractor_5, product.price_5 AS product_price_5, product.has_sale_5 AS product_has_sale_5, product.contractor_6 AS product_contractor_6, product.price_6 AS product_price_6, product.has_sale_6 AS product_has_sale_6, product.contractor_7 AS product_contractor_7, product.price_7 AS product_price_7, product.has_sale_7 AS product_has_sale_7, product.contractor_8 AS product_contractor_8, product.price_8 AS product_price_8, product.has_sale_8 AS product_has_sale_8, product.contractor_9 AS product_contractor_9, product.price_9 AS product_price_9, product.has_sale_9 AS product_has_sale_9, product.contractor_10 AS product_contractor_10, product.price_10 AS product_price_10, product.has_sale_10 AS product_has_sale_10, product.is_completed AS product_is_completed, product.error_message AS product_error_message 
+FROM product 
+WHERE product.sku = %s]
+[parameters: ('BICGSM609AST',)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+Error in fetching data from sku BICMP48BK
+(MySQLdb.OperationalError) (2013, 'Lost connection to MySQL server during query')
+[SQL: SELECT product.id AS product_id, product.sku AS product_sku, product.company_price AS product_company_price, product.contractor_1 AS product_contractor_1, product.price_1 AS product_price_1, product.has_sale_1 AS product_has_sale_1, product.contractor_2 AS product_contractor_2, product.price_2 AS product_price_2, product.has_sale_2 AS product_has_sale_2, product.contractor_3 AS product_contractor_3, product.price_3 AS product_price_3, product.has_sale_3 AS product_has_sale_3, product.contractor_4 AS product_contractor_4, product.price_4 AS product_price_4, product.has_sale_4 AS product_has_sale_4, product.contractor_5 AS product_contractor_5, product.price_5 AS product_price_5, product.has_sale_5 AS product_has_sale_5, product.contractor_6 AS product_contractor_6, product.price_6 AS product_price_6, product.has_sale_6 AS product_has_sale_6, product.contractor_7 AS product_contractor_7, product.price_7 AS product_price_7, product.has_sale_7 AS product_has_sale_7, product.contractor_8 AS product_contractor_8, product.price_8 AS product_price_8, product.has_sale_8 AS product_has_sale_8, product.contractor_9 AS product_contractor_9, product.price_9 AS product_price_9, product.has_sale_9 AS product_has_sale_9, product.contractor_10 AS product_contractor_10, product.price_10 AS product_price_10, product.has_sale_10 AS product_has_sale_10, product.is_completed AS product_is_completed, product.error_message AS product_error_message 
+FROM product 
+WHERE product.sku = %s]
+[parameters: ('BICMP48BK',)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+Error in fetching data from sku BICMP320BK
+(MySQLdb.OperationalError) (2013, 'Lost connection to MySQL server during query')
+[SQL: SELECT product.id AS product_id, product.sku AS product_sku, product.company_price AS product_company_price, product.contractor_1 AS product_contractor_1, product.price_1 AS product_price_1, product.has_sale_1 AS product_has_sale_1, product.contractor_2 AS product_contractor_2, product.price_2 AS product_price_2, product.has_sale_2 AS product_has_sale_2, product.contractor_3 AS product_contractor_3, product.price_3 AS product_price_3, product.has_sale_3 AS product_has_sale_3, product.contractor_4 AS product_contractor_4, product.price_4 AS product_price_4, product.has_sale_4 AS product_has_sale_4, product.contractor_5 AS product_contractor_5, product.price_5 AS product_price_5, product.has_sale_5 AS product_has_sale_5, product.contractor_6 AS product_contractor_6, product.price_6 AS product_price_6, product.has_sale_6 AS product_has_sale_6, product.contractor_7 AS product_contractor_7, product.price_7 AS product_price_7, product.has_sale_7 AS product_has_sale_7, product.contractor_8 AS product_contractor_8, product.price_8 AS product_price_8, product.has_sale_8 AS product_has_sale_8, product.contractor_9 AS product_contractor_9, product.price_9 AS product_price_9, product.has_sale_9 AS product_has_sale_9, product.contractor_10 AS product_contractor_10, product.price_10 AS product_price_10, product.has_sale_10 AS product_has_sale_10, product.is_completed AS product_is_completed, product.error_message AS product_error_message 
+FROM product 
+WHERE product.sku = %s]
+[parameters: ('BICMP320BK',)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+Error in fetching data from sku AVE01375
+
+Error in fetching data from sku AVE82223
+UPDATE statement on table 'product' expected to update 1 row(s); 0 were matched.
+Error in fetching data from sku AVE82172
+UPDATE statement on table 'product' expected to update 1 row(s); 0 were matched.
+Error in fetching data from sku AVE01058
+
+Error in fetching data from sku AVE01078
+UPDATE statement on table 'product' expected to update 1 row(s); 0 were matched.
+Error in fetching data from sku AVE01336
+(MySQLdb.OperationalError) (2013, 'Lost connection to MySQL server during query')
+[SQL: SELECT product.id AS product_id, product.sku AS product_sku, product.company_price AS product_company_price, product.contractor_1 AS product_contractor_1, product.price_1 AS product_price_1, product.has_sale_1 AS product_has_sale_1, product.contractor_2 AS product_contractor_2, product.price_2 AS product_price_2, product.has_sale_2 AS product_has_sale_2, product.contractor_3 AS product_contractor_3, product.price_3 AS product_price_3, product.has_sale_3 AS product_has_sale_3, product.contractor_4 AS product_contractor_4, product.price_4 AS product_price_4, product.has_sale_4 AS product_has_sale_4, product.contractor_5 AS product_contractor_5, product.price_5 AS product_price_5, product.has_sale_5 AS product_has_sale_5, product.contractor_6 AS product_contractor_6, product.price_6 AS product_price_6, product.has_sale_6 AS product_has_sale_6, product.contractor_7 AS product_contractor_7, product.price_7 AS product_price_7, product.has_sale_7 AS product_has_sale_7, product.contractor_8 AS product_contractor_8, product.price_8 AS product_price_8, product.has_sale_8 AS product_has_sale_8, product.contractor_9 AS product_contractor_9, product.price_9 AS product_price_9, product.has_sale_9 AS product_has_sale_9, product.contractor_10 AS product_contractor_10, product.price_10 AS product_price_10, product.has_sale_10 AS product_has_sale_10, product.is_completed AS product_is_completed, product.error_message AS product_error_message 
+FROM product 
+WHERE product.sku = %s]
+[parameters: ('AVE01336',)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+Error in fetching data from sku AVT34104
+UPDATE statement on table 'product' expected to update 1 row(s); 0 were matched.
+Error in fetching data from sku MMM658
+
+Error in fetching data from sku 7530016816534
+
+Error in fetching data from sku 7520002633425
+
+Error in fetching data from sku 7520014316251
+(MySQLdb.OperationalError) (2013, 'Lost connection to MySQL server during query')
+[SQL: SELECT product.id AS product_id, product.sku AS product_sku, product.company_price AS product_company_price, product.contractor_1 AS product_contractor_1, product.price_1 AS product_price_1, product.has_sale_1 AS product_has_sale_1, product.contractor_2 AS product_contractor_2, product.price_2 AS product_price_2, product.has_sale_2 AS product_has_sale_2, product.contractor_3 AS product_contractor_3, product.price_3 AS product_price_3, product.has_sale_3 AS product_has_sale_3, product.contractor_4 AS product_contractor_4, product.price_4 AS product_price_4, product.has_sale_4 AS product_has_sale_4, product.contractor_5 AS product_contractor_5, product.price_5 AS product_price_5, product.has_sale_5 AS product_has_sale_5, product.contractor_6 AS product_contractor_6, product.price_6 AS product_price_6, product.has_sale_6 AS product_has_sale_6, product.contractor_7 AS product_contractor_7, product.price_7 AS product_price_7, product.has_sale_7 AS product_has_sale_7, product.contractor_8 AS product_contractor_8, product.price_8 AS product_price_8, product.has_sale_8 AS product_has_sale_8, product.contractor_9 AS product_contractor_9, product.price_9 AS product_price_9, product.has_sale_9 AS product_has_sale_9, product.contractor_10 AS product_contractor_10, product.price_10 AS product_price_10, product.has_sale_10 AS product_has_sale_10, product.is_completed AS product_is_completed, product.error_message AS product_error_message 
+FROM product 
+WHERE product.sku = %s]
+[parameters: ('7520014316251',)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+Error in fetching data from sku 7510016603727
+(MySQLdb.OperationalError) (2013, 'Lost connection to MySQL server during query')
+[SQL: SELECT product.id AS product_id, product.sku AS product_sku, product.company_price AS product_company_price, product.contractor_1 AS product_contractor_1, product.price_1 AS product_price_1, product.has_sale_1 AS product_has_sale_1, product.contractor_2 AS product_contractor_2, product.price_2 AS product_price_2, product.has_sale_2 AS product_has_sale_2, product.contractor_3 AS product_contractor_3, product.price_3 AS product_price_3, product.has_sale_3 AS product_has_sale_3, product.contractor_4 AS product_contractor_4, product.price_4 AS product_price_4, product.has_sale_4 AS product_has_sale_4, product.contractor_5 AS product_contractor_5, product.price_5 AS product_price_5, product.has_sale_5 AS product_has_sale_5, product.contractor_6 AS product_contractor_6, product.price_6 AS product_price_6, product.has_sale_6 AS product_has_sale_6, product.contractor_7 AS product_contractor_7, product.price_7 AS product_price_7, product.has_sale_7 AS product_has_sale_7, product.contractor_8 AS product_contractor_8, product.price_8 AS product_price_8, product.has_sale_8 AS product_has_sale_8, product.contractor_9 AS product_contractor_9, product.price_9 AS product_price_9, product.has_sale_9 AS product_has_sale_9, product.contractor_10 AS product_contractor_10, product.price_10 AS product_price_10, product.has_sale_10 AS product_has_sale_10, product.is_completed AS product_is_completed, product.error_message AS product_error_message 
+FROM product 
+WHERE product.sku = %s]
+[parameters: ('7510016603727',)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+Error in fetching data from sku 7510016821302
+
+Error in fetching data from sku 7510014844563
+UPDATE statement on table 'product' expected to update 1 row(s); 0 were matched.
+Error in fetching data from sku 7520015646054
+UPDATE statement on table 'product' expected to update 1 row(s); 0 were matched.
+Error in fetching data from sku 7520016522436
+
+Error in fetching data from sku 9905015882362
+
+Error in fetching data from sku 7520016203828
+UPDATE statement on table 'product' expected to update 1 row(s); 0 were matched.
+Error in fetching data from sku 5110016296575
+
+Error in fetching data from sku EPSS045315
+(MySQLdb.OperationalError) (4031, 'The client was disconnected by the server because of inactivity. See wait_timeout and interactive_timeout for configuring this behavior.')
+[SQL: SELECT product.id AS product_id, product.sku AS product_sku, product.company_price AS product_company_price, product.contractor_1 AS product_contractor_1, product.price_1 AS product_price_1, product.has_sale_1 AS product_has_sale_1, product.contractor_2 AS product_contractor_2, product.price_2 AS product_price_2, product.has_sale_2 AS product_has_sale_2, product.contractor_3 AS product_contractor_3, product.price_3 AS product_price_3, product.has_sale_3 AS product_has_sale_3, product.contractor_4 AS product_contractor_4, product.price_4 AS product_price_4, product.has_sale_4 AS product_has_sale_4, product.contractor_5 AS product_contractor_5, product.price_5 AS product_price_5, product.has_sale_5 AS product_has_sale_5, product.contractor_6 AS product_contractor_6, product.price_6 AS product_price_6, product.has_sale_6 AS product_has_sale_6, product.contractor_7 AS product_contractor_7, product.price_7 AS product_price_7, product.has_sale_7 AS product_has_sale_7, product.contractor_8 AS product_contractor_8, product.price_8 AS product_price_8, product.has_sale_8 AS product_has_sale_8, product.contractor_9 AS product_contractor_9, product.price_9 AS product_price_9, product.has_sale_9 AS product_has_sale_9, product.contractor_10 AS product_contractor_10, product.price_10 AS product_price_10, product.has_sale_10 AS product_has_sale_10, product.is_completed AS product_is_completed, product.error_message AS product_error_message 
+FROM product 
+WHERE product.sku = %s]
+[parameters: ('EPSS045315',)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+Error in fetching data from sku 7510013152023
+UPDATE statement on table 'product' expected to update 1 row(s); 0 were matched.
+Error in fetching data from sku 7510002828201
+
+Error in fetching data from sku VEK30081
+
+Error in fetching data from sku TAB29506
+
+Error in fetching data from sku TAB29507
+(MySQLdb.OperationalError) (2013, 'Lost connection to MySQL server during query')
+[SQL: SELECT product.id AS product_id, product.sku AS product_sku, product.company_price AS product_company_price, product.contractor_1 AS product_contractor_1, product.price_1 AS product_price_1, product.has_sale_1 AS product_has_sale_1, product.contractor_2 AS product_contractor_2, product.price_2 AS product_price_2, product.has_sale_2 AS product_has_sale_2, product.contractor_3 AS product_contractor_3, product.price_3 AS product_price_3, product.has_sale_3 AS product_has_sale_3, product.contractor_4 AS product_contractor_4, product.price_4 AS product_price_4, product.has_sale_4 AS product_has_sale_4, product.contractor_5 AS product_contractor_5, product.price_5 AS product_price_5, product.has_sale_5 AS product_has_sale_5, product.contractor_6 AS product_contractor_6, product.price_6 AS product_price_6, product.has_sale_6 AS product_has_sale_6, product.contractor_7 AS product_contractor_7, product.price_7 AS product_price_7, product.has_sale_7 AS product_has_sale_7, product.contractor_8 AS product_contractor_8, product.price_8 AS product_price_8, product.has_sale_8 AS product_has_sale_8, product.contractor_9 AS product_contractor_9, product.price_9 AS product_price_9, product.has_sale_9 AS product_has_sale_9, product.contractor_10 AS product_contractor_10, product.price_10 AS product_price_10, product.has_sale_10 AS product_has_sale_10, product.is_completed AS product_is_completed, product.error_message AS product_error_message 
+FROM product 
+WHERE product.sku = %s]
+[parameters: ('TAB29507',)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+Error in fetching data from sku TAB29510
+(MySQLdb.OperationalError) (2013, 'Lost connection to MySQL server during query')
+[SQL: SELECT product.id AS product_id, product.sku AS product_sku, product.company_price AS product_company_price, product.contractor_1 AS product_contractor_1, product.price_1 AS product_price_1, product.has_sale_1 AS product_has_sale_1, product.contractor_2 AS product_contractor_2, product.price_2 AS product_price_2, product.has_sale_2 AS product_has_sale_2, product.contractor_3 AS product_contractor_3, product.price_3 AS product_price_3, product.has_sale_3 AS product_has_sale_3, product.contractor_4 AS product_contractor_4, product.price_4 AS product_price_4, product.has_sale_4 AS product_has_sale_4, product.contractor_5 AS product_contractor_5, product.price_5 AS product_price_5, product.has_sale_5 AS product_has_sale_5, product.contractor_6 AS product_contractor_6, product.price_6 AS product_price_6, product.has_sale_6 AS product_has_sale_6, product.contractor_7 AS product_contractor_7, product.price_7 AS product_price_7, product.has_sale_7 AS product_has_sale_7, product.contractor_8 AS product_contractor_8, product.price_8 AS product_price_8, product.has_sale_8 AS product_has_sale_8, product.contractor_9 AS product_contractor_9, product.price_9 AS product_price_9, product.has_sale_9 AS product_has_sale_9, product.contractor_10 AS product_contractor_10, product.price_10 AS product_price_10, product.has_sale_10 AS product_has_sale_10, product.is_completed AS product_is_completed, product.error_message AS product_error_message 
+FROM product 
+WHERE product.sku = %s]
+[parameters: ('TAB29510',)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+Error in fetching data from sku TAB29502
+(MySQLdb.OperationalError) (2013, 'Lost connection to MySQL server during query')
+[SQL: SELECT product.id AS product_id, product.sku AS product_sku, product.company_price AS product_company_price, product.contractor_1 AS product_contractor_1, product.price_1 AS product_price_1, product.has_sale_1 AS product_has_sale_1, product.contractor_2 AS product_contractor_2, product.price_2 AS product_price_2, product.has_sale_2 AS product_has_sale_2, product.contractor_3 AS product_contractor_3, product.price_3 AS product_price_3, product.has_sale_3 AS product_has_sale_3, product.contractor_4 AS product_contractor_4, product.price_4 AS product_price_4, product.has_sale_4 AS product_has_sale_4, product.contractor_5 AS product_contractor_5, product.price_5 AS product_price_5, product.has_sale_5 AS product_has_sale_5, product.contractor_6 AS product_contractor_6, product.price_6 AS product_price_6, product.has_sale_6 AS product_has_sale_6, product.contractor_7 AS product_contractor_7, product.price_7 AS product_price_7, product.has_sale_7 AS product_has_sale_7, product.contractor_8 AS product_contractor_8, product.price_8 AS product_price_8, product.has_sale_8 AS product_has_sale_8, product.contractor_9 AS product_contractor_9, product.price_9 AS product_price_9, product.has_sale_9 AS product_has_sale_9, product.contractor_10 AS product_contractor_10, product.price_10 AS product_price_10, product.has_sale_10 AS product_has_sale_10, product.is_completed AS product_is_completed, product.error_message AS product_error_message 
+FROM product 
+WHERE product.sku = %s]
+[parameters: ('TAB29502',)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+Error in fetching data from sku ALL42339
+UPDATE statement on table 'product' expected to update 1 row(s); 0 were matched.
+Error in fetching data from sku KCC48858
+UPDATE statement on table 'product' expected to update 1 row(s); 0 were matched.
+Error in fetching data from sku GOJ518604CT
+UPDATE statement on table 'product' expected to update 1 row(s); 0 were matched.
+Error in fetching data from sku CYO588228
+
+Error in fetching data from sku MMM59032W
+UPDATE statement on table 'product' expected to update 1 row(s); 0 were matched.
+Error in fetching data from sku DURDA13B16ZM09
+(MySQLdb.OperationalError) (4031, 'The client was disconnected by the server because of inactivity. See wait_timeout and interactive_timeout for configuring this behavior.')
+[SQL: SELECT product.id AS product_id, product.sku AS product_sku, product.company_price AS product_company_price, product.contractor_1 AS product_contractor_1, product.price_1 AS product_price_1, product.has_sale_1 AS product_has_sale_1, product.contractor_2 AS product_contractor_2, product.price_2 AS product_price_2, product.has_sale_2 AS product_has_sale_2, product.contractor_3 AS product_contractor_3, product.price_3 AS product_price_3, product.has_sale_3 AS product_has_sale_3, product.contractor_4 AS product_contractor_4, product.price_4 AS product_price_4, product.has_sale_4 AS product_has_sale_4, product.contractor_5 AS product_contractor_5, product.price_5 AS product_price_5, product.has_sale_5 AS product_has_sale_5, product.contractor_6 AS product_contractor_6, product.price_6 AS product_price_6, product.has_sale_6 AS product_has_sale_6, product.contractor_7 AS product_contractor_7, product.price_7 AS product_price_7, product.has_sale_7 AS product_has_sale_7, product.contractor_8 AS product_contractor_8, product.price_8 AS product_price_8, product.has_sale_8 AS product_has_sale_8, product.contractor_9 AS product_contractor_9, product.price_9 AS product_price_9, product.has_sale_9 AS product_has_sale_9, product.contractor_10 AS product_contractor_10, product.price_10 AS product_price_10, product.has_sale_10 AS product_has_sale_10, product.is_completed AS product_is_completed, product.error_message AS product_error_message 
+FROM product 
+WHERE product.sku = %s]
+[parameters: ('DURDA13B16ZM09',)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+Error in fetching data from gsin 11000084415746
+('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))
+Error in fetching data from sku HON10546LNN
+UPDATE statement on table 'product' expected to update 1 row(s); 0 were matched.
+Error in fetching data from sku TRKD820
+
+Error in fetching data from sku HOD157
+UPDATE statement on table 'product' expected to update 1 row(s); 0 were matched.
+Error in fetching data from sku GOJ095712EA
+
+Error in fetching data from sku CNM0339C001
+UPDATE statement on table 'product' expected to update 1 row(s); 0 were matched.
+Error in fetching data from sku DIA06951CT
+UPDATE statement on table 'product' expected to update 1 row(s); 0 were matched.
+Error in fetching data from sku BWK10GREENB
+UPDATE statement on table 'product' expected to update 1 row(s); 0 were matched.
+Error in fetching data from sku WMN137EA
+UPDATE statement on table 'product' expected to update 1 row(s); 0 were matched.
+Error in fetching data from sku PENBLN25B
+UPDATE statement on table 'product' expected to update 1 row(s); 0 were matched.
+Error in fetching data from sku PIL77240
+
+Error in fetching data from sku PIL31820
+UPDATE statement on table 'product' expected to update 1 row(s); 0 were matched.
+Error in fetching data from sku RIC820073
+UPDATE statement on table 'product' expected to update 1 row(s); 0 were matched.
+Error in fetching data from sku REDB115007U
+

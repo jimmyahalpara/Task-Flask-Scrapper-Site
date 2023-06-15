@@ -1,4 +1,5 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, session
+from flask_session import Session
 from flask_sqlalchemy import SQLAlchemy
 import numpy as np 
 import pandas as pd 
@@ -9,6 +10,9 @@ import time
 import hashlib
 import os
 app = Flask(__name__)
+app.config['SESSION_TYPE'] = 'filesystem'
+app.config['SESSION_FILE_DIR'] = '/var/www/scraper/main/session'
+Session(app)
 application = app
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://scraperuser:so#meScrapper123123Password@localhost:3306/scraper'
@@ -298,31 +302,6 @@ def start():
     return {
         'status': 'success'
     }
-
-
-@app.route('/resume-progress', methods=['GET'])
-def resume_progress():
-    # from app import check_process
-    # get pid from application state table
-    pid = ApplicationState.query.filter_by(key='process_id').first().value
-    if pid is None:
-        return "Great - pid " + str(pid)
-    # check if process is running
-    if check_pid(int(pid)):
-        return "Process is running........................"
-    # # get all the data from MainConfig table
-    main_config = get_main_config()
-    process = mp.Process(target=continue_process, args=(main_config,))
-    process.start()
-    process_pid = process.pid
-    check_pro = mp.Process(target=check_process, args=(process_pid,))
-    check_pro.start()
-    # join the process
-    process.join()
-    # kill the process
-    process.terminate()
-    return "Great - pid " + str(pid)
-
 @app.route('/pause', methods=['POST'])
 def pause():
     # check password
